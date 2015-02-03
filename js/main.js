@@ -2,59 +2,87 @@
 //@codekit-prepend "../bower_components/d3/d3.js"
 
 
-var data = [{
-	title: '2000',
-	description: 'Lorem Ipsum',
-	image: 'http://dummyimage.com/900x600/eeeeee/000000.png'
-},
-{
-	title: '2001',
-	description: 'Lorem Ipsum',
-	image: 'http://dummyimage.com/900x600/eeeeee/000000.png'
-},
-{
-	title: '2002',
-	description: 'Lorem Ipsum',
-	image: 'http://dummyimage.com/900x600/eeeeee/000000.png'
-},
-{
-	title: '2003',
-	description: 'Lorem Ipsum',
-	image: 'http://dummyimage.com/900x600/eeeeee/000000.png'
-}];
-
 $(document).ready(function() {
-	var canvas = d3.select('.canvas');
-	canvas.append('ul')
-		.attr('class', 'timeline-controls')
-		.selectAll('li')
+
+	var svg = d3.select('.canvas');
+	var canvas_width = svg.node().getBoundingClientRect().width;
+	var toolbar_height = 35;
+	var	content_height = svg.node().getBoundingClientRect().height - toolbar_height;
+	var button_width = 80;
+
+	var data = [{
+		title: '2000',
+		description: 'Lorem Ipsum',
+		image: 'http://dummyimage.com/' + canvas_width + 'x' + content_height + '/eeeeee/000000.png'
+	},
+	{
+		title: '2001',
+		description: 'Lorem Ipsum',
+		image: 'http://dummyimage.com/' + canvas_width + 'x' + content_height + '/eeeeee/000000.png'
+	},
+	{
+		title: '2002',
+		description: 'Lorem Ipsum',
+		image: 'http://dummyimage.com/' + canvas_width + 'x' + content_height + '/eeeeee/000000.png'
+	},
+	{
+		title: '2003',
+		description: 'Lorem Ipsum',
+		image: 'http://dummyimage.com/' + canvas_width + 'x' + content_height + '/eeeeee/000000.png'
+	}];
+
+
+	svg.append('rect')
+		.attr('id', 'timeline-background')
+		.attr('width', '100%')
+		.attr('height', toolbar_height);
+
+	var timeline_marker = svg.append('rect')
+		.attr('id', 'timeline-marker')
+		.attr('width', button_width)
+		.attr('height', toolbar_height)
+		.attr('x', '0');
+
+	var timeline_bar = svg.append('g')
+		.attr('class', 'timeline-controls');
+
+	var timeline_buttons = timeline_bar.selectAll('g')
 		.data(data)
-		.enter()
-		.append('li')
+		.enter().append('g')
 		.attr('class', 'timeline-point')
-		.text(function(d){
-			return d['title'];
-		})
-		.on('click', function(d){
-			d3.selectAll('.content img')
-				.style('display', 'none');
-			d3.select('#year-' + d['title'])
-				.style('display', 'block');
-			// console.log(d3.select(this).getBoundingClientRect())
-		});
+		.attr("transform", function(d, i) { return "translate(" + i * button_width + ", 0)"; });
 
-	canvas.select('ul.timeline-controls')
-		.append('li')
-		.attr('class', 'hover timeline-point')
-		.html('&nbsp');
+	timeline_buttons.append('rect')
+		.attr('width', button_width)
+		.attr('height', toolbar_height)
 
-	canvas.append('div')
+	timeline_buttons.append('text')
+		.text(function(d){return d['title']})
+		.attr('x', 20)
+		.attr('y', 22);
+
+	timeline_buttons.on('click', function(d){
+		d3.selectAll('.content g')
+			.style('display', 'none');
+		d3.select('.content g#year-' + d['title'])
+			.style('display', 'block');
+		d3.select('#timeline-marker')
+			.transition()
+			.attr('x', d3.select(this).node().getBoundingClientRect()['left'])
+	});
+
+	var content = svg.append('g')
 		.attr('class', 'content')
-		.selectAll('img')
+		.attr('transform', "translate(0,35)");
+
+	var images = content.selectAll('g')
 		.data(data)
-		.enter()
-		.append('img')
-		.attr('src', function(d){return d['image'] + '&text=' + d['title'];})
-		.attr('id', function(d){return 'year-' + d['title'];});
+		.enter().append('g')
+		.attr('id', function(d){return 'year-' + d['title']});
+
+	images.append('svg:image')
+		.attr('xlink:href', function(d){return d['image'] + '&text=' + d['title']})
+		.attr('width', canvas_width)
+		.attr('height', content_height);
 	
 });

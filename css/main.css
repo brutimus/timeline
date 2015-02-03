@@ -30,6 +30,9 @@ body {
   stroke: none;
   font-size: 1.2em;
 }
+.canvas #content-background {
+  fill: #eee;
+}
 .canvas .content g {
   display: none;
 }

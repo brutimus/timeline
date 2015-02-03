@@ -1,48 +1,111 @@
 //@codekit-prepend "../bower_components/jquery/dist/jquery.js"
 //@codekit-prepend "../bower_components/d3/d3.js"
 
-
+var svg, content, points;
 $(document).ready(function() {
 
-	var svg = d3.select('.canvas');
+	svg = d3.select('.canvas');
 	var canvas_width = svg.node().getBoundingClientRect().width;
 	var toolbar_height = 35;
 	var	content_height = svg.node().getBoundingClientRect().height - toolbar_height;
 	var button_width = 80;
 
-	var data = [{
+	points = [{
+			id: 0,
+			x: .25,
+			y: .4
+		},{
+			id: 1,
+			x: .35,
+			y: .2
+		},{
+			id: 2,
+			x: .5,
+			y: .6
+		},{
+			id: 3,
+			x: .3,
+			y: .8
+		},{
+			id: 4,
+			x: .9,
+			y: .2
+		},{
+			id: 5,
+			x: .75,
+			y: .7
+		},{
+			id: 6,
+			x: .35,
+			y: .44
+		},{
+			id: 7,
+			x: .55,
+			y: .15
+		}];
+
+	data = [{
 		title: '2000',
 		description: 'Lorem Ipsum',
-		image: 'http://dummyimage.com/' + canvas_width + 'x' + content_height + '/eeeeee/000000.png'
+		points: [0]
 	},
 	{
 		title: '2001',
 		description: 'Lorem Ipsum',
-		image: 'http://dummyimage.com/' + canvas_width + 'x' + content_height + '/eeeeee/000000.png'
+		points: [0,1]
 	},
 	{
 		title: '2002',
 		description: 'Lorem Ipsum',
-		image: 'http://dummyimage.com/' + canvas_width + 'x' + content_height + '/eeeeee/000000.png'
+		points: [0,1,2]
 	},
 	{
 		title: '2003',
 		description: 'Lorem Ipsum',
-		image: 'http://dummyimage.com/' + canvas_width + 'x' + content_height + '/eeeeee/000000.png'
+		points: [1,2,3,4]
+	},
+	{
+		title: '2004',
+		description: 'Lorem Ipsum',
+		points: [2,3,4,5,6]
+	},
+	{
+		title: '2005',
+		description: 'Lorem Ipsum',
+		points: [2,4,5,6]
+	},
+	{
+		title: '2006',
+		description: 'Lorem Ipsum',
+		points: [4,5,6,7]
 	}];
 
+	// CONTENT AREA BACKGROUND
+	svg.append('rect')
+		.attr('id', 'content-background')
+		.attr('width', '100%')
+		.attr('height', content_height)
+		.attr('transform', "translate(0," + toolbar_height + ")");
 
+	// CONTENT AREA
+	content = svg.append('g')
+		.attr('class', 'content')
+		.attr('transform', "translate(0," + toolbar_height + ")");
+
+	// TOOLBAR BACKGROUND
 	svg.append('rect')
 		.attr('id', 'timeline-background')
 		.attr('width', '100%')
 		.attr('height', toolbar_height);
 
+	// TOOLBAR SELECTION MARKER
 	var timeline_marker = svg.append('rect')
 		.attr('id', 'timeline-marker')
 		.attr('width', button_width)
 		.attr('height', toolbar_height)
-		.attr('x', '0');
+		.attr('x', -button_width);
 
+	// TOOLBAR
 	var timeline_bar = svg.append('g')
 		.attr('class', 'timeline-controls');
 
@@ -57,32 +120,32 @@ $(document).ready(function() {
 		.attr('height', toolbar_height)
 
 	timeline_buttons.append('text')
-		.text(function(d){return d['title']})
 		.attr('x', 20)
-		.attr('y', 22);
+		.attr('y', 22)
+		.text(function(d){return d['title']});
 
 	timeline_buttons.on('click', function(d){
-		d3.selectAll('.content g')
-			.style('display', 'none');
-		d3.select('.content g#year-' + d['title'])
-			.style('display', 'block');
 		d3.select('#timeline-marker')
 			.transition()
-			.attr('x', d3.select(this).node().getBoundingClientRect()['left'])
+			.attr('x', d3.select(this).node().getBoundingClientRect()['left']);
+		selected_points = $(points).filter(function() {
+				return $.inArray(this.id, d.points) > -1
+			});
+		var circles = content.selectAll('circle')
+			.data(selected_points, function(point) { return point.id; });
+
+		circles.enter()
+			.append('circle')
+			.attr('r', 10)
+			.attr('cx', function(d){return d.x * canvas_width})
+			.attr('cy', -toolbar_height)
+			.transition()
+			.attr('cy', function(d){return d.y * content_height});
+		circles.exit()
+			.transition()
+			.attr('cy', -toolbar_height)
+			.remove();
+
 	});
 
-	var content = svg.append('g')
-		.attr('class', 'content')
-		.attr('transform', "translate(0,35)");
-
-	var images = content.selectAll('g')
-		.data(data)
-		.enter().append('g')
-		.attr('id', function(d){return 'year-' + d['title']});
-
-	images.append('svg:image')
-		.attr('xlink:href', function(d){return d['image'] + '&text=' + d['title']})
-		.attr('width', canvas_width)
-		.attr('height', content_height);
-	
 });

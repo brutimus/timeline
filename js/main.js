@@ -17,7 +17,7 @@ $(document).ready(function() {
 		},{
 			id: 1,
 			x: .35,
-			y: .2
+			y: .45
 		},{
 			id: 2,
 			x: .5,
@@ -25,15 +25,15 @@ $(document).ready(function() {
 		},{
 			id: 3,
 			x: .3,
-			y: .8
+			y: .48
 		},{
 			id: 4,
 			x: .9,
-			y: .2
+			y: .55
 		},{
 			id: 5,
 			x: .75,
-			y: .7
+			y: .5
 		},{
 			id: 6,
 			x: .35,
@@ -41,7 +41,7 @@ $(document).ready(function() {
 		},{
 			id: 7,
 			x: .55,
-			y: .15
+			y: .35
 		}];
 
 	data = [{

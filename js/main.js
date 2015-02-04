@@ -5,10 +5,42 @@ var svg, content, points;
 $(document).ready(function() {
 
 	svg = d3.select('.canvas');
-	var canvas_width = svg.node().getBoundingClientRect().width;
+	var width = svg.node().getBoundingClientRect().width;
+	var	height = svg.node().getBoundingClientRect().height;
 	var toolbar_height = 35;
-	var	content_height = svg.node().getBoundingClientRect().height - toolbar_height;
 	var button_width = 80;
+
+	var x = d3.scale.linear()
+	    .domain([-width / 2, width / 2])
+	    .range([0, width]);
+
+	var y = d3.scale.linear()
+	    .domain([-height / 2, height / 2])
+	    .range([height, 0]);
+
+	// var xAxis = d3.svg.axis()
+	//     .scale(x)
+	//     .orient("bottom")
+	//     .tickSize(-height);
+
+	// var yAxis = d3.svg.axis()
+	//     .scale(y)
+	//     .orient("left")
+	//     .ticks(5)
+	//     .tickSize(-width);
+
+	var zoom = d3.behavior.zoom()
+	    // .x(x)
+	    // .y(y)
+	    .scaleExtent([1, 32])
+	    .on("zoom", zoomed);
+
+	function zoomed() {
+	    // content.select(".x.axis").call(xAxis);
+	    // content.select(".y.axis").call(yAxis);
+	    content.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+	}
+
 
 	points = [{
 			id: 0,
@@ -84,13 +116,22 @@ $(document).ready(function() {
 	svg.append('rect')
 		.attr('id', 'content-background')
 		.attr('width', '100%')
-		.attr('height', content_height)
-		.attr('transform', "translate(0," + toolbar_height + ")");
+		.attr('height', height)
+		.call(zoom);
+	
 
 	// CONTENT AREA
 	content = svg.append('g')
 		.attr('class', 'content')
-		.attr('transform', "translate(0," + toolbar_height + ")");
+		.attr('transform', "translate(0," + toolbar_height + ")")
+		.append('g');
+	// content.append("g")
+	//     .attr("class", "x axis")
+	//     .attr("transform", "translate(0," + height + ")")
+	//     .call(xAxis);
+	// content.append("g")
+	//     .attr("class", "y axis")
+	//     .call(yAxis);
 
 	// TOOLBAR BACKGROUND
 	svg.append('rect')
@@ -137,10 +178,10 @@ $(document).ready(function() {
 		circles.enter()
 			.append('circle')
 			.attr('r', 10)
-			.attr('cx', function(d){return d.x * canvas_width})
+			.attr('cx', function(d){return d.x * width})
 			.attr('cy', -toolbar_height)
 			.transition()
-			.attr('cy', function(d){return d.y * content_height});
+			.attr('cy', function(d){return d.y * height});
 		circles.exit()
 			.transition()
 			.attr('cy', -toolbar_height)

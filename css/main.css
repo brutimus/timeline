@@ -7,10 +7,14 @@ text {
   text-anchor: middle;
   alignment-baseline: central;
 }
-.canvas {
+.container {
   width: 100%;
   max-width: 900px;
   height: 600px;
+}
+.canvas {
+  width: 100%;
+  height: 100%;
   margin: 0 auto;
 }
 .canvas #timeline-background {

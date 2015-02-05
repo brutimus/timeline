@@ -37,22 +37,27 @@ $(document).ready(function() {
 		selected_points = $(points).filter(function() {
 				return $.inArray(this.id, d.points) > -1
 			});
-		var circles = content.selectAll('circle')
+		var sprites = content.selectAll('.sprite')
 			.data(selected_points, function(p) { return p.id; });
 
-		circles.enter()
-			.append('circle')
-			.attr('class', 'marker')
-			.attr('r', 10)
-			.attr('cx', function(d){return d.x * width})
-			.attr('cy', -toolbar_height)
+		sprites.enter().append('g')
+			.attr('class', 'sprite')
+			.attr('transform', function(d){return 'translate(' + (d.x * width) + ',' + -75 + ')'})
+		.append('svg:image')
+			.attr('xlink:href', function(d){return d['sprite'] + '&text=id' + d['id'].toString()})
+			.attr('width', 75)
+			.attr('height', 75)
+			.attr('class', 'marker');
+		
+		sprites.transition()
+			.attr('transform', function(d){return 'translate(' + (d.x * width) + ',' + d.y * height + ')'});
+
+		sprites.exit()
 			.transition()
-			.attr('cy', function(d){return d.y * height});
-		circles.exit()
-			.transition()
-			.attr('cy', -toolbar_height)
+			.attr('transform', function(d){return 'translate(' + (d.x * width) + ',' + -75 + ')'})
 			.remove();
-		circles.on('mouseover', tip.show)
+
+		sprites.on('mouseover', tip.show)
 	        .on('mouseout', tip.hide);
 	}
 	function toggle_details_panel () {
@@ -67,14 +72,14 @@ $(document).ready(function() {
 			.attr('class', 'fo')
 		    .attr("width", (width * .66) + 'px')
 		    .attr("height", (height - toolbar_height) + 'px')
-			.append("xhtml:body")
+		.append("xhtml:body")
 			.attr('xmlns', "http://www.w3.org/1999/xhtml")
 			.attr('class', 'details-body')
 			.style("height", (height - toolbar_height) + 'px')
-			.append('div')
+		.append('div')
 			.style("height", (height - toolbar_height) + 'px')
 			.attr('class', 'details-container')
-		    .html("<h1>Details for an era</h1><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu enim quam. Quisque nisi risus, sagittis quis tempor nec, aliquam eget neque. Nulla bibendum semper lorem non ullamcorper. <img src='http://dummyimage.com/300x200/eeeeee/000000.png' /> Nulla non ligula lorem. Praesent porttitor, tellus nec suscipit aliquam, enim elit posuere lorem, at laoreet enim ligula sed tortor. Ut sodales, urna a aliquam semper, nibh diam gravida sapien, sit amet fermentum purus lacus eget massa. Donec ac arcu vel magna consequat pretium et vel ligula. Donec sit amet erat elit. Vivamus eu metus eget est hendrerit rutrum. Curabitur vitae orci et leo interdum egestas ut sit amet dui. In varius enim ut sem posuere in tristique metus ultrices.<p>Integer mollis massa at orci porta vestibulum. Pellentesque dignissim turpis ut tortor ultricies condimentum et quis nibh. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer euismod lorem vulputate dui pharetra luctus. Sed vulputate, nunc quis porttitor scelerisque, dui est varius ipsum, eu blandit mauris nibh pellentesque tortor. Vivamus ultricies ante eget ipsum pulvinar ac tempor turpis mollis. Morbi tortor orci, euismod vel sagittis ac, lobortis nec est. Quisque euismod venenatis felis at dapibus. Vestibulum dignissim nulla ut nisi tristique porttitor. Proin et nunc id arcu cursus dapibus non quis libero. Nunc ligula mi, bibendum non mattis nec, luctus id neque. Suspendisse ut eros lacus. Praesent eget lacus eget risus congue vestibulum. Morbi tincidunt pulvinar lacus sed faucibus. Phasellus sed vestibulum sapien.");
+		    .html("<h1>Details for an era</h1><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu enim quam. Quisque nisi risus, sagittis quis tempor nec, aliquam eget neque. Nulla bibendum semper lorem non ullamcorper. <img src='http://dummyimage.com/300x200/F0B05C/000000.png' /> Nulla non ligula lorem. Praesent porttitor, tellus nec suscipit aliquam, enim elit posuere lorem, at laoreet enim ligula sed tortor. Ut sodales, urna a aliquam semper, nibh diam gravida sapien, sit amet fermentum purus lacus eget massa. Donec ac arcu vel magna consequat pretium et vel ligula. Donec sit amet erat elit. Vivamus eu metus eget est hendrerit rutrum. Curabitur vitae orci et leo interdum egestas ut sit amet dui. In varius enim ut sem posuere in tristique metus ultrices.<p>Integer mollis massa at orci porta vestibulum. Pellentesque dignissim turpis ut tortor ultricies condimentum et quis nibh. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer euismod lorem vulputate dui pharetra luctus. Sed vulputate, nunc quis porttitor scelerisque, dui est varius ipsum, eu blandit mauris nibh pellentesque tortor. Vivamus ultricies ante eget ipsum pulvinar ac tempor turpis mollis. Morbi tortor orci, euismod vel sagittis ac, lobortis nec est. Quisque euismod venenatis felis at dapibus. Vestibulum dignissim nulla ut nisi tristique porttitor. Proin et nunc id arcu cursus dapibus non quis libero. Nunc ligula mi, bibendum non mattis nec, luctus id neque. Suspendisse ut eros lacus. Praesent eget lacus eget risus congue vestibulum. Morbi tincidunt pulvinar lacus sed faucibus. Phasellus sed vestibulum sapien.");
 
 		details_panel.transition()
 			.attr('transform', 'translate(' + (width - (width * .66)) + ',' + toolbar_height + ')');
@@ -91,42 +96,50 @@ $(document).ready(function() {
 			id: 0,
 			x: .25,
 			y: .4,
-			description: 'Circle description'
+			description: 'Circle description',
+			sprite: 'http://dummyimage.com/150x150/F0B05C/000000.png'
 		},{
 			id: 1,
 			x: .35,
 			y: .45,
-			description: 'Circle description'
+			description: 'Circle description',
+			sprite: 'http://dummyimage.com/150x150/F0B05C/000000.png'
 		},{
 			id: 2,
 			x: .5,
 			y: .6,
-			description: 'Circle description'
+			description: 'Circle description',
+			sprite: 'http://dummyimage.com/150x150/F0B05C/000000.png'
 		},{
 			id: 3,
 			x: .3,
 			y: .48,
-			description: 'Circle description'
+			description: 'Circle description',
+			sprite: 'http://dummyimage.com/150x150/F0B05C/000000.png'
 		},{
 			id: 4,
 			x: .9,
 			y: .55,
-			description: 'Circle description'
+			description: 'Circle description',
+			sprite: 'http://dummyimage.com/150x150/F0B05C/000000.png'
 		},{
 			id: 5,
 			x: .75,
 			y: .5,
-			description: 'Circle description'
+			description: 'Circle description',
+			sprite: 'http://dummyimage.com/150x150/F0B05C/000000.png'
 		},{
 			id: 6,
 			x: .35,
 			y: .44,
-			description: 'Circle description'
+			description: 'Circle description',
+			sprite: 'http://dummyimage.com/150x150/F0B05C/000000.png'
 		},{
 			id: 7,
 			x: .55,
 			y: .35,
-			description: 'Circle description'
+			description: 'Circle description',
+			sprite: 'http://dummyimage.com/150x150/F0B05C/000000.png'
 		}];
 
 	data = [{
@@ -177,7 +190,7 @@ $(document).ready(function() {
 	content = svg.append('g')
 		.attr('class', 'content')
 		.attr('transform', "translate(0," + toolbar_height + ")")
-		.append('g');
+	.append('g');
 
 	details_panel = svg.append('g')
 		.attr('id', 'details-panel')
@@ -220,8 +233,8 @@ $(document).ready(function() {
 		.attr('class', 'timeline-controls');
 
 	var timeline_buttons = timeline_bar.selectAll('g')
-		.data(data)
-		.enter().append('g')
+		.data(data).enter()
+	.append('g')
 		.attr('class', 'timeline-point')
 		.attr("transform", function(d, i) { return "translate(" + i * button_width + ", 0)"; });
 

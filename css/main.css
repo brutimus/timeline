@@ -3,16 +3,43 @@
 body {
   font-family: 'Source Sans Pro', sans-serif;
 }
+text {
+  text-anchor: middle;
+  alignment-baseline: central;
+}
 .canvas {
-  width: 900px;
-  height: 675px;
+  width: 100%;
+  max-width: 900px;
+  height: 600px;
   margin: 0 auto;
 }
 .canvas #timeline-background {
-  fill: #263843;
+  fill: #41759a;
 }
 .canvas #timeline-marker {
-  fill: #2f4653;
+  fill: #4983ac;
+}
+.canvas #marker-details-button {
+  fill: #396788;
+  cursor: pointer;
+}
+.canvas #marker-details-button text {
+  stroke: none;
+  fill: #eeeeee;
+  font-size: .7em;
+  font-weight: 200;
+}
+.canvas #details-panel {
+  fill: #325a76;
+  stroke: none;
+}
+.canvas #details-panel .details-body {
+  color: #eeeeee;
+  padding: 10px 30px;
+}
+.canvas #details-panel .details-body img {
+  float: left;
+  margin: 15px 15px 15px 0;
 }
 .canvas .timeline-controls {
   position: relative;
@@ -20,10 +47,11 @@ body {
   overflow: auto;
   margin: 0;
   padding: 0;
+  cursor: pointer;
 }
 .canvas .timeline-controls .timeline-point {
   fill: none;
-  stroke: #2f4653;
+  stroke: #4983ac;
 }
 .canvas .timeline-controls .timeline-point text {
   fill: #eeeeee;
@@ -33,14 +61,33 @@ body {
 .canvas #content-background {
   fill: #eee;
 }
-.canvas .content g {
-  display: none;
+.canvas .content .marker {
+  fill: #f0b05c;
+  stroke: none;
 }
-.canvas .content g:first-child {
-  display: block;
+.d3-tip {
+  font-size: .8em;
+  line-height: 1em;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+  /* Creates a small triangle extender for the tooltip */
+  /* Style northward tooltips differently */
 }
-.canvas .axis path,
-.canvas .axis line {
-  fill: none;
-  stroke: #fff;
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
 }

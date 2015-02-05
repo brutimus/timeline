@@ -1,16 +1,25 @@
 @import "../bower_components/normalize-css/normalize.css";
 @import url(http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600);
 
-@bg-color: #263843;
+@bg-color: #41759A;
+@bg-color2: #4F51A7;
+@bg-color3: #F0CA5C;
+@bg-color4: #F0B05C;
 @fg-color: #eee;
 
 body {
 	font-family: 'Source Sans Pro',sans-serif;
 }
 
+text {
+	text-anchor: middle;
+	alignment-baseline: central;
+}
+
 .canvas {
-	width: 900px;
-	height: 675px;
+	width: 100%;
+	max-width: 900px;
+	height: 600px;
 	margin: 0 auto;
 
 	#timeline-background {
@@ -20,6 +29,35 @@ body {
 	#timeline-marker {
 		fill: lighten(@bg-color, 5%);
 	}
+	#marker-details-button {
+		fill: darken(@bg-color, 5%);
+		cursor: pointer;
+
+		text {
+			stroke: none;
+			fill: @fg-color;
+			font-size: .7em;
+			font-weight: 200;
+		}
+	}
+	#details-panel {
+		fill: darken(@bg-color, 10%);
+		stroke: none;
+
+		.details-body {
+			color: @fg-color;
+			padding: 10px 30px;
+
+			.details-container {
+				// overflow: scroll;
+			}
+
+			img {
+				float: left;
+				margin: 15px 15px 15px 0;
+			}
+		}
+	}
 
 	.timeline-controls {
 		position: relative;
@@ -27,6 +65,7 @@ body {
 		overflow: auto;
 		margin: 0;
 		padding: 0;
+		cursor: pointer;
 
 		.timeline-point {
 			fill: none;
@@ -47,18 +86,37 @@ body {
 	}
 
 	.content {
-		g {
-			display: none;
-
-			&:first-child {
-				display: block;
-			}
+		.marker {
+			fill: @bg-color4;
+			stroke: none;
 		}
 	}
-	.axis path,
-	.axis line {
-	  fill: none;
-	  stroke: #fff;
+}
+.d3-tip {
+	font-size: .8em;
+	line-height: 1em;
+	padding: 8px;
+	background: rgba(0, 0, 0, 0.8);
+	color: #fff;
+	border-radius: 2px;
+	
+	/* Creates a small triangle extender for the tooltip */
+	&:after {
+		box-sizing: border-box;
+		display: inline;
+		font-size: 10px;
+		width: 100%;
+		line-height: 1;
+		color: rgba(0, 0, 0, 0.8);
+		content: "\25BC";
+		position: absolute;
+		text-align: center;
+	}
+	/* Style northward tooltips differently */
+	&.n:after {
+		margin: -1px 0 0 0;
+		top: 100%;
+		left: 0;
 	}
 }
 

@@ -17,9 +17,36 @@ text {
 }
 
 .container {
+	position: relative;
 	width: 100%;
 	max-width: 900px;
 	height: 600px;
+	overflow: hidden;
+}
+
+.details-panel {
+	position: absolute;
+	display: none;
+	background-color: darken(@bg-color, 10%);
+	overflow: auto;
+	padding: 10px 30px;
+	box-sizing: border-box;
+	color: @fg-color;
+	img {
+		float: left;
+		margin: 15px 15px 15px 0;
+	}
+}
+.details-panel-close {
+	cursor: pointer;
+	
+	rect {
+		fill: darken(@bg-color, 10%);
+	}
+	text {
+		fill: @fg-color;
+		stroke: none;
+	}
 }
 
 .canvas {
@@ -43,24 +70,6 @@ text {
 			fill: @fg-color;
 			font-size: .7em;
 			font-weight: 200;
-		}
-	}
-	#details-panel {
-		fill: darken(@bg-color, 10%);
-		stroke: none;
-
-		.details-body {
-			color: @fg-color;
-			padding: 10px 30px;
-
-			.details-container {
-				// overflow: scroll;
-			}
-
-			img {
-				float: left;
-				margin: 15px 15px 15px 0;
-			}
 		}
 	}
 

@@ -68,27 +68,19 @@ $(document).ready(function() {
 		}
 	}
 	function show_details_panel(){
-		details_panel.append("foreignObject")
-			.attr('class', 'fo')
-		    .attr("width", (width * .66) + 'px')
-		    .attr("height", (height - toolbar_height) + 'px')
-		.append("xhtml:body")
-			.attr('xmlns', "http://www.w3.org/1999/xhtml")
-			.attr('class', 'details-body')
-			.style("height", (height - toolbar_height) + 'px')
-		.append('div')
-			.style("height", (height - toolbar_height) + 'px')
-			.attr('class', 'details-container')
-		    .html("<h1>Details for an era</h1><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu enim quam. Quisque nisi risus, sagittis quis tempor nec, aliquam eget neque. Nulla bibendum semper lorem non ullamcorper. <img src='http://dummyimage.com/300x200/F0B05C/000000.png' /> Nulla non ligula lorem. Praesent porttitor, tellus nec suscipit aliquam, enim elit posuere lorem, at laoreet enim ligula sed tortor. Ut sodales, urna a aliquam semper, nibh diam gravida sapien, sit amet fermentum purus lacus eget massa. Donec ac arcu vel magna consequat pretium et vel ligula. Donec sit amet erat elit. Vivamus eu metus eget est hendrerit rutrum. Curabitur vitae orci et leo interdum egestas ut sit amet dui. In varius enim ut sem posuere in tristique metus ultrices.<p>Integer mollis massa at orci porta vestibulum. Pellentesque dignissim turpis ut tortor ultricies condimentum et quis nibh. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer euismod lorem vulputate dui pharetra luctus. Sed vulputate, nunc quis porttitor scelerisque, dui est varius ipsum, eu blandit mauris nibh pellentesque tortor. Vivamus ultricies ante eget ipsum pulvinar ac tempor turpis mollis. Morbi tortor orci, euismod vel sagittis ac, lobortis nec est. Quisque euismod venenatis felis at dapibus. Vestibulum dignissim nulla ut nisi tristique porttitor. Proin et nunc id arcu cursus dapibus non quis libero. Nunc ligula mi, bibendum non mattis nec, luctus id neque. Suspendisse ut eros lacus. Praesent eget lacus eget risus congue vestibulum. Morbi tincidunt pulvinar lacus sed faucibus. Phasellus sed vestibulum sapien.");
-
+		timeline_marker.select('#marker-details-button').transition()
+			.attr('transform', 'translate(0,' + (toolbar_height - (toolbar_height * .5)) + ')');
+		details_panel.html("<h1>Details for an era</h1><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu enim quam. Quisque nisi risus, sagittis quis tempor nec, aliquam eget neque. Nulla bibendum semper lorem non ullamcorper. <img src='http://dummyimage.com/300x200/F0B05C/000000.png' /> Nulla non ligula lorem. Praesent porttitor, tellus nec suscipit aliquam, enim elit posuere lorem, at laoreet enim ligula sed tortor. Ut sodales, urna a aliquam semper, nibh diam gravida sapien, sit amet fermentum purus lacus eget massa. Donec ac arcu vel magna consequat pretium et vel ligula. Donec sit amet erat elit. Vivamus eu metus eget est hendrerit rutrum. Curabitur vitae orci et leo interdum egestas ut sit amet dui. In varius enim ut sem posuere in tristique metus ultrices.<p>Integer mollis massa at orci porta vestibulum. Pellentesque dignissim turpis ut tortor ultricies condimentum et quis nibh. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer euismod lorem vulputate dui pharetra luctus. Sed vulputate, nunc quis porttitor scelerisque, dui est varius ipsum, eu blandit mauris nibh pellentesque tortor. Vivamus ultricies ante eget ipsum pulvinar ac tempor turpis mollis. Morbi tortor orci, euismod vel sagittis ac, lobortis nec est. Quisque euismod venenatis felis at dapibus. Vestibulum dignissim nulla ut nisi tristique porttitor. Proin et nunc id arcu cursus dapibus non quis libero. Nunc ligula mi, bibendum non mattis nec, luctus id neque. Suspendisse ut eros lacus. Praesent eget lacus eget risus congue vestibulum. Morbi tincidunt pulvinar lacus sed faucibus. Phasellus sed vestibulum sapien.");
 		details_panel.transition()
-			.attr('transform', 'translate(' + (width - (width * .66)) + ',' + toolbar_height + ')');
+			.style('right', '0px');
+		details_panel_close.transition().delay(250).duration(500)
+			.attr('transform', 'translate(' + ((width * .33) - (toolbar_height / 2)) + ',' + ((height / 2) - (button_width / 2)) + ')')
 	}
 	function hide_details_panel(){
 		details_panel.transition()
-			.attr('transform', 'translate(' + width + ',' + toolbar_height + ')')
-			.selectAll('.fo')
-			.remove();
+			.style('right', -(width * .66) + 'px');
+		details_panel_close.transition()
+			.attr('transform', 'translate(' + width + ',' + ((height / 2) - (button_width / 2)) + ')')
 	}
 
 
@@ -192,12 +184,29 @@ $(document).ready(function() {
 		.attr('transform', "translate(0," + toolbar_height + ")")
 	.append('g');
 
-	details_panel = svg.append('g')
-		.attr('id', 'details-panel')
-		.attr('transform', 'translate(' + width + ',' + toolbar_height + ')');
-	details_panel.append('rect')
-		.attr('width', width * .66)
-		.attr('height', height - toolbar_height);
+	details_panel = d3.select('.details-panel')
+		.style('top', toolbar_height + 'px')
+		.style('right', -(width * .66) + 'px')
+		.style('width', (width * .66) + 'px')
+		.style('height', (height - toolbar_height) + 'px')
+		.style('display', 'block');
+
+	details_panel_close = svg.append('g')
+		.attr('class', 'details-panel-close')
+		.attr('transform', 'translate(' + width + ',' + ((height / 2) - (button_width / 2)) + ')')
+		.on('click', function(){
+			hide_details_panel();
+			timeline_marker.select('#marker-details-button').transition()
+			.attr('transform', 'translate(0,' + toolbar_height + ')');
+		});
+	details_panel_close.append('rect')
+		.attr('width', toolbar_height)
+		.attr('height', button_width);
+	details_panel_close.append('text')
+		.attr('x', -button_width / 2)
+		.attr('y', toolbar_height / 2)
+		.attr('transform', 'rotate(-90)')
+		.text('CLOSE');
 
 	// TOOLBAR BACKGROUND
 	svg.append('rect')
@@ -236,7 +245,8 @@ $(document).ready(function() {
 		.data(data).enter()
 	.append('g')
 		.attr('class', 'timeline-point')
-		.attr("transform", function(d, i) { return "translate(" + i * button_width + ", 0)"; });
+		.attr("transform", function(d, i) { return "translate(" + i * button_width + ", 0)"; })
+		.on('click', changeSelection);
 
 	timeline_buttons.append('rect')
 		.attr('width', button_width)
@@ -246,8 +256,6 @@ $(document).ready(function() {
 		.attr('x', button_width / 2)
 		.attr('y', toolbar_height / 2)
 		.text(function(d){return d['title']});
-
-	timeline_buttons.on('click', changeSelection);
 
 	if (document.URL.indexOf('timelinedebug') > 0) {
 		// ECHO MOUSE POSITION

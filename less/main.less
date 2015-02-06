@@ -22,6 +22,9 @@ text {
 	max-width: 900px;
 	height: 600px;
 	overflow: hidden;
+	margin: 0 auto;
+	border: 1px solid #eee;
+	border-top: none;
 }
 
 .details-panel {
@@ -55,7 +58,6 @@ text {
 .canvas {
 	width: 100%;
 	height: 100%;
-	margin: 0 auto;
 
 	#timeline-background {
 		fill: #fff;
@@ -90,8 +92,10 @@ text {
 		cursor: pointer;
 
 		.timeline-point {
-			fill: none;
-			stroke: none;
+			fill: #fff;
+			stroke: @bg-color;
+			stroke-width: 4px;
+			stroke-dasharray: 80 1000;
 
 			text {
 				fill: @bg-color;

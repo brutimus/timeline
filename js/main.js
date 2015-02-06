@@ -1,26 +1,73 @@
 //@codekit-prepend "../bower_components/jquery/dist/jquery.js"
 //@codekit-prepend "../bower_components/d3/d3.js"
 //@codekit-prepend "../bower_components/d3-tip/index.js"
+//@codekit-prepend "../bower_components/queue-async/queue.js"
 
-var svg, content, points;
+// var svg, content, points, stops;
+
+if (!String.prototype.format) {
+  String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) { 
+      return typeof args[number] != 'undefined'
+        ? args[number]
+        : match
+      ;
+    });
+  };
+}
+
 $(document).ready(function() {
 
-	svg = d3.select('.canvas');
-	var width = svg.node().getBoundingClientRect().width;
-	var	height = svg.node().getBoundingClientRect().height;
-	toolbar_height = 35;
-	button_width = 80;
+	/* ========== VARIABLES & FUNCTIONS ========== */
 
-	var zoom = d3.behavior.zoom()
-	    .scaleExtent([1, 3])
-	    .on("zoom", zoomed);
+	var spreadsheet_url = 'https://spreadsheets.google.com/tq?key={0}&gid={1}&tqx=out:csv',
+		spreadsheet_key = '1CkXFDv-JURnD6xmqSFHQz3xBiuvmuw9Mjh3foLtKwK8',
+		points_sheet = '0',
+		timeline_sheet = '37073144',
+		svg,
+		points = [],
+		stops = [];
 
-	var tip = d3.tip()
-		.attr('class', 'd3-tip')
-		.offset([-10, 0])
-		.html(function(d) {
-			return "<span>" + d.description + "</span>";
-		})
+	function proc_points(d){
+		return {
+			id: d.id,
+			x: +d.x,
+			y: +d.y,
+			description: d.description,
+			sprite: d.sprite
+		}
+	}
+	function proc_stops(d){
+		return {
+			title: d.title,
+			description: d.description,
+			points: d.points.split(',')
+		}
+	}
+
+	function ready(error, ps, ss) {
+		console.log(error, points, stops)
+		points = ps;
+		stops = ss;
+	    var timeline_buttons = timeline_bar.selectAll('g')
+			.data(stops).enter()
+		.append('g');
+		timeline_buttons.attr('class', 'timeline-point')
+			.attr("transform", function(d, i) { return "translate(0, 0)"; })
+			.transition()
+			.attr("transform", function(d, i) { return "translate(" + i * button_width + ", 0)"; });
+		timeline_buttons.on('click', changeSelection);
+
+		timeline_buttons.append('rect')
+			.attr('width', button_width)
+			.attr('height', toolbar_height)
+
+		timeline_buttons.append('text')
+			.attr('x', button_width / 2)
+			.attr('y', toolbar_height / 2)
+			.text(function(d){return d['title']});
+	}
 
 	function zoomed() {
 	    content.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
@@ -73,7 +120,7 @@ $(document).ready(function() {
 		details_panel.html("<h1>Details for an era</h1><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eu enim quam. Quisque nisi risus, sagittis quis tempor nec, aliquam eget neque. Nulla bibendum semper lorem non ullamcorper. <img src='http://dummyimage.com/300x200/F0B05C/000000.png' /> Nulla non ligula lorem. Praesent porttitor, tellus nec suscipit aliquam, enim elit posuere lorem, at laoreet enim ligula sed tortor. Ut sodales, urna a aliquam semper, nibh diam gravida sapien, sit amet fermentum purus lacus eget massa. Donec ac arcu vel magna consequat pretium et vel ligula. Donec sit amet erat elit. Vivamus eu metus eget est hendrerit rutrum. Curabitur vitae orci et leo interdum egestas ut sit amet dui. In varius enim ut sem posuere in tristique metus ultrices.<p>Integer mollis massa at orci porta vestibulum. Pellentesque dignissim turpis ut tortor ultricies condimentum et quis nibh. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer euismod lorem vulputate dui pharetra luctus. Sed vulputate, nunc quis porttitor scelerisque, dui est varius ipsum, eu blandit mauris nibh pellentesque tortor. Vivamus ultricies ante eget ipsum pulvinar ac tempor turpis mollis. Morbi tortor orci, euismod vel sagittis ac, lobortis nec est. Quisque euismod venenatis felis at dapibus. Vestibulum dignissim nulla ut nisi tristique porttitor. Proin et nunc id arcu cursus dapibus non quis libero. Nunc ligula mi, bibendum non mattis nec, luctus id neque. Suspendisse ut eros lacus. Praesent eget lacus eget risus congue vestibulum. Morbi tincidunt pulvinar lacus sed faucibus. Phasellus sed vestibulum sapien.");
 		details_panel.transition()
 			.style('right', '0px');
-		details_panel_close.transition().delay(250).duration(500)
+		details_panel_close.transition().delay(50).duration(300)
 			.attr('transform', 'translate(' + ((width * .33) - (toolbar_height / 2)) + ',' + ((height / 2) - (button_width / 2)) + ')')
 	}
 	function hide_details_panel(){
@@ -84,93 +131,28 @@ $(document).ready(function() {
 	}
 
 
-	points = [{
-			id: 0,
-			x: .25,
-			y: .4,
-			description: 'Circle description',
-			sprite: 'http://dummyimage.com/150x150/F0B05C/000000.png'
-		},{
-			id: 1,
-			x: .35,
-			y: .45,
-			description: 'Circle description',
-			sprite: 'http://dummyimage.com/150x150/F0B05C/000000.png'
-		},{
-			id: 2,
-			x: .5,
-			y: .6,
-			description: 'Circle description',
-			sprite: 'http://dummyimage.com/150x150/F0B05C/000000.png'
-		},{
-			id: 3,
-			x: .3,
-			y: .48,
-			description: 'Circle description',
-			sprite: 'http://dummyimage.com/150x150/F0B05C/000000.png'
-		},{
-			id: 4,
-			x: .9,
-			y: .55,
-			description: 'Circle description',
-			sprite: 'http://dummyimage.com/150x150/F0B05C/000000.png'
-		},{
-			id: 5,
-			x: .75,
-			y: .5,
-			description: 'Circle description',
-			sprite: 'http://dummyimage.com/150x150/F0B05C/000000.png'
-		},{
-			id: 6,
-			x: .35,
-			y: .44,
-			description: 'Circle description',
-			sprite: 'http://dummyimage.com/150x150/F0B05C/000000.png'
-		},{
-			id: 7,
-			x: .55,
-			y: .35,
-			description: 'Circle description',
-			sprite: 'http://dummyimage.com/150x150/F0B05C/000000.png'
-		}];
+	/* ========== SETUP SVG ========== */
 
-	data = [{
-		title: '2000',
-		description: 'Lorem Ipsum',
-		points: [0]
-	},
-	{
-		title: '2001',
-		description: 'Lorem Ipsum',
-		points: [0,1]
-	},
-	{
-		title: '2002',
-		description: 'Lorem Ipsum',
-		points: [0,1,2]
-	},
-	{
-		title: '2003',
-		description: 'Lorem Ipsum',
-		points: [1,2,3,4]
-	},
-	{
-		title: '2004',
-		description: 'Lorem Ipsum',
-		points: [2,3,4,5,6]
-	},
-	{
-		title: '2005',
-		description: 'Lorem Ipsum',
-		points: [2,4,5,6]
-	},
-	{
-		title: '2006',
-		description: 'Lorem Ipsum',
-		points: [4,5,6,7]
-	}];
+	var svg = d3.select('.canvas'),
+		width = svg.node().getBoundingClientRect().width,
+		height = svg.node().getBoundingClientRect().height,
+		toolbar_height = 35,
+		button_width = 80,
+		zoom = d3.behavior.zoom()
+	    	.scaleExtent([1, 3])
+	    	.on("zoom", zoomed),
+		tip = d3.tip()
+			.attr('class', 'd3-tip')
+			.offset([-10, 0])
+			.html(function(d) {
+				return "<span>" + d.description + "</span>";
+			});
 
+
+	/* ========== SETUP UI ========== */
+	
 	// CONTENT AREA BACKGROUND
+	
 	svg.append('rect')
 		.attr('id', 'content-background')
 		.attr('width', '100%')
@@ -178,11 +160,16 @@ $(document).ready(function() {
 		.call(zoom)
 		.call(tip);
 
+
 	// CONTENT AREA
+
 	content = svg.append('g')
 		.attr('class', 'content')
 		.attr('transform', "translate(0," + toolbar_height + ")")
 	.append('g');
+
+
+	// DETAILS PANEL
 
 	details_panel = d3.select('.details-panel')
 		.style('top', toolbar_height + 'px')
@@ -208,16 +195,19 @@ $(document).ready(function() {
 		.attr('transform', 'rotate(-90)')
 		.text('CLOSE');
 
+
 	// TOOLBAR BACKGROUND
+	
 	svg.append('rect')
 		.attr('id', 'timeline-background')
 		.attr('width', '100%')
 		.attr('height', toolbar_height);
 
+
 	// TOOLBAR SELECTION MARKER
+
 	timeline_marker = svg.append('g')
 		.attr('transform', 'translate(' + -button_width + ',0)');
-
 	marker_details = timeline_marker.append('g')
 		.attr('id', 'marker-details-button')
 		.attr('transform', 'translate(0,' + (toolbar_height - (toolbar_height * .5)) + ')')
@@ -229,33 +219,29 @@ $(document).ready(function() {
 		.attr('x', button_width / 2)
 		.attr('y', (toolbar_height * .5) / 2)
 		.text('DETAILS');
-
-
 	timeline_marker.append('rect')
 		.attr('id', 'timeline-marker')
 		.attr('width', button_width)
 		.attr('height', toolbar_height);
 
 
-	// TOOLBAR
-	var timeline_bar = svg.append('g')
+	// TOOLBAR BUTTON CONTAINER
+
+	timeline_bar = svg.append('g')
 		.attr('class', 'timeline-controls');
 
-	var timeline_buttons = timeline_bar.selectAll('g')
-		.data(data).enter()
-	.append('g')
-		.attr('class', 'timeline-point')
-		.attr("transform", function(d, i) { return "translate(" + i * button_width + ", 0)"; })
-		.on('click', changeSelection);
 
-	timeline_buttons.append('rect')
-		.attr('width', button_width)
-		.attr('height', toolbar_height)
+	/* ============================= */
+	/* ========== RUNTIME ========== */
+	/* ============================= */
 
-	timeline_buttons.append('text')
-		.attr('x', button_width / 2)
-		.attr('y', toolbar_height / 2)
-		.text(function(d){return d['title']});
+	queue()
+	    .defer(d3.csv, spreadsheet_url.format(spreadsheet_key, points_sheet), proc_points)
+	    .defer(d3.csv, spreadsheet_url.format(spreadsheet_key, timeline_sheet), proc_stops)
+	    .await(ready);
+
+
+	/* ========== DEBUG ========== */
 
 	if (document.URL.indexOf('timelinedebug') > 0) {
 		// ECHO MOUSE POSITION

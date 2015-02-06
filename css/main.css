@@ -36,6 +36,8 @@ text {
 .details-panel-close text {
   fill: #eeeeee;
   stroke: none;
+  font-weight: 300;
+  letter-spacing: .3px;
 }
 .canvas {
   width: 100%;
@@ -43,20 +45,25 @@ text {
   margin: 0 auto;
 }
 .canvas #timeline-background {
-  fill: #41759a;
+  fill: #fff;
+  stroke-dasharray: 900 10000;
+  stroke-width: 4px;
+  stroke: #41759a;
 }
 .canvas #timeline-marker {
-  fill: #4983ac;
+  fill: #f7f7f7;
+  stroke: none;
 }
 .canvas #marker-details-button {
-  fill: #396788;
+  fill: #f7f7f7;
   cursor: pointer;
 }
 .canvas #marker-details-button text {
   stroke: none;
-  fill: #eeeeee;
+  fill: #41759a;
   font-size: .7em;
-  font-weight: 200;
+  font-weight: 300;
+  letter-spacing: .05px;
 }
 .canvas .timeline-controls {
   position: relative;
@@ -68,12 +75,14 @@ text {
 }
 .canvas .timeline-controls .timeline-point {
   fill: none;
-  stroke: #4983ac;
+  stroke: none;
 }
 .canvas .timeline-controls .timeline-point text {
-  fill: #eeeeee;
+  fill: #41759a;
   stroke: none;
   font-size: 1.2em;
+  font-weight: 300;
+  letter-spacing: .3px;
 }
 .canvas #content-background {
   fill: #eee;

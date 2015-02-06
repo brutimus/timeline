@@ -47,6 +47,8 @@ text {
 	text {
 		fill: @fg-color;
 		stroke: none;
+		font-weight: 300;
+		letter-spacing: .3px;
 	}
 }
 
@@ -56,21 +58,26 @@ text {
 	margin: 0 auto;
 
 	#timeline-background {
-		fill: @bg-color;
+		fill: #fff;
+		stroke-dasharray: 900 10000;
+		stroke-width: 4px;
+		stroke: @bg-color;
 	}
 
 	#timeline-marker {
-		fill: lighten(@bg-color, 5%);
+		fill: darken(#fff, 3%);
+		stroke: none;
 	}
 	#marker-details-button {
-		fill: darken(@bg-color, 5%);
+		fill: darken(#fff, 3%);
 		cursor: pointer;
 
 		text {
 			stroke: none;
-			fill: @fg-color;
+			fill: @bg-color;
 			font-size: .7em;
-			font-weight: 200;
+			font-weight: 300;
+			letter-spacing: .05px;
 		}
 	}
 
@@ -84,12 +91,14 @@ text {
 
 		.timeline-point {
 			fill: none;
-			stroke: lighten(@bg-color, 5%);
+			stroke: none;
 
 			text {
-				fill: @fg-color;
+				fill: @bg-color;
 				stroke: none;
 				font-size: 1.2em;
+				font-weight: 300;
+				letter-spacing: .3px;
 
 			}
 

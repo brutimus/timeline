@@ -78,11 +78,11 @@ $(document).ready(function() {
 			details_panel.html(d.description)
 		}, 300) // 50ms longer than the panel hide transition
 		timeline_marker.select('#marker-details-button')
-			.attr('transform', 'translate(0,' + (toolbar_height - (toolbar_height * .5)) + ')');
+			.attr('transform', 'translate(0,' + ((toolbar_height - (toolbar_height * .5)) - 2) + ')');
 		t0 = timeline_marker.transition();
-		t0.attr('transform', 'translate(' + button_width * i + ',0)');
+		t0.attr('transform', 'translate(' + button_width * i + ',2)');
 		t0.transition().select('#marker-details-button')
-			.attr('transform', 'translate(0,' + toolbar_height + ')');
+			.attr('transform', 'translate(0,' + (toolbar_height - 2) + ')');
 		selected_points = $(points).filter(function() {
 				return $.inArray(this.id, d.points) > -1
 			});
@@ -118,7 +118,7 @@ $(document).ready(function() {
 	}
 	function show_details_panel(){
 		timeline_marker.select('#marker-details-button').transition()
-			.attr('transform', 'translate(0,' + (toolbar_height - (toolbar_height * .5)) + ')');
+			.attr('transform', 'translate(0,' + ((toolbar_height - (toolbar_height * .5)) - 2) + ')');
 		details_panel.transition()
 			.style('right', '0px');
 		details_panel_close.transition().delay(50).duration(300)
@@ -185,7 +185,7 @@ $(document).ready(function() {
 		.on('click', function(){
 			hide_details_panel();
 			timeline_marker.select('#marker-details-button').transition()
-			.attr('transform', 'translate(0,' + toolbar_height + ')');
+			.attr('transform', 'translate(0,' + (toolbar_height - 2) + ')');
 		});
 	details_panel_close.append('rect')
 		.attr('width', toolbar_height)
@@ -208,10 +208,10 @@ $(document).ready(function() {
 	// TOOLBAR SELECTION MARKER
 
 	timeline_marker = svg.append('g')
-		.attr('transform', 'translate(' + -button_width + ',0)');
+		.attr('transform', 'translate(' + -button_width + ',2)');
 	marker_details = timeline_marker.append('g')
 		.attr('id', 'marker-details-button')
-		.attr('transform', 'translate(0,' + (toolbar_height - (toolbar_height * .5)) + ')')
+		.attr('transform', 'translate(0,' + ((toolbar_height - (toolbar_height * .5)) - 2) + ')')
 		.on('click', toggle_details_panel);
 	marker_details.append('rect')
 		.attr('width', button_width)
@@ -223,7 +223,7 @@ $(document).ready(function() {
 	timeline_marker.append('rect')
 		.attr('id', 'timeline-marker')
 		.attr('width', button_width)
-		.attr('height', toolbar_height);
+		.attr('height', toolbar_height - 2);
 
 
 	// TOOLBAR BUTTON CONTAINER

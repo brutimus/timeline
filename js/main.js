@@ -27,7 +27,8 @@ $(document).ready(function() {
 		timeline_sheet = '37073144',
 		svg,
 		points = [],
-		stops = [];
+		stops = [],
+		background_image = '/img/blank-us-map.svg';
 
 	function proc_points(d){
 		return {
@@ -46,7 +47,7 @@ $(document).ready(function() {
 		}
 	}
 
-	function data_ready(error, ps, ss) {
+	function data_ready(error, ps, ss, bg_image) {
 		points = ps;
 		stops = ss;
 	    var timeline_buttons = timeline_bar.selectAll('g')
@@ -66,6 +67,10 @@ $(document).ready(function() {
 			.attr('x', button_width / 2)
 			.attr('y', toolbar_height / 2)
 			.text(function(d){return d['title']});
+
+		var svgNode = bg_image
+            .getElementsByTagName("svg")[0];
+        content.node().appendChild(svgNode);
 	}
 
 	function zoomed() {
@@ -151,23 +156,20 @@ $(document).ready(function() {
 
 
 	/* ========== SETUP UI ========== */
-	
-	// CONTENT AREA BACKGROUND
-	
-	svg.append('rect')
-		.attr('id', 'content-background')
-		.attr('width', '100%')
-		.attr('height', height)
-		.call(zoom)
-		.call(tip);
-
 
 	// CONTENT AREA
 
-	content = svg.append('g')
+	content_group = svg.append('g')
 		.attr('class', 'content')
 		.attr('transform', "translate(0," + toolbar_height + ")")
-	.append('g');
+		.call(zoom)
+		.call(tip);
+	content_group.append('rect')
+		.attr('id', 'content-background')
+		.attr('width', '100%')
+		.attr('height', height - toolbar_height);
+
+	content = content_group.append('g');
 
 
 	// DETAILS PANEL
@@ -239,6 +241,7 @@ $(document).ready(function() {
 	queue()
 	    .defer(d3.csv, spreadsheet_url.format(spreadsheet_key, points_sheet), proc_points)
 	    .defer(d3.csv, spreadsheet_url.format(spreadsheet_key, timeline_sheet), proc_stops)
+	    .defer(d3.xml, background_image)
 	    .await(data_ready);
 
 

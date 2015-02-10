@@ -23,12 +23,20 @@ $(document).ready(function() {
 
 	var spreadsheet_url = 'https://spreadsheets.google.com/tq?key={0}&gid={1}&tqx=out:csv',
 		spreadsheet_key = '1CkXFDv-JURnD6xmqSFHQz3xBiuvmuw9Mjh3foLtKwK8',
+		config_sheet = '48832348',
 		points_sheet = '0',
 		timeline_sheet = '37073144',
 		svg,
 		points = [],
-		stops = [],
-		background_image = '/img/blank-us-map.svg';
+		stops = [];
+
+	function proc_config(rows){
+		var config = {};
+		rows.map(function(elem) {
+			config[elem.key] = elem.value
+		})
+		return config
+	}
 
 	function proc_points(d){
 		return {
@@ -47,16 +55,28 @@ $(document).ready(function() {
 		}
 	}
 
-	function data_ready(error, ps, ss, bg_image) {
+	function set_bg_image(data){
+		var svgNode = data
+            .getElementsByTagName("svg")[0];
+        content.node().appendChild(svgNode);
+	}
+
+	function data_ready(error, cs, ps, ss) {
 		points = ps;
 		stops = ss;
+		config = proc_config(cs);
+
+		d3.xml(config.image, set_bg_image);
+
 	    var timeline_buttons = timeline_bar.selectAll('g')
 			.data(stops).enter()
 		.append('g');
 		timeline_buttons.attr('class', 'timeline-point')
 			.attr("transform", function(d, i) { return "translate(0, 0)"; })
 			.transition()
-			.attr("transform", function(d, i) { return "translate(" + i * button_width + ", 0)"; });
+			.attr("transform", function(d, i) { return "translate(" + i * button_width + ", 0)"; })
+			.transition()
+			.style('fill', 'none');
 		timeline_buttons.on('click', changeSelection);
 
 		timeline_buttons.append('rect')
@@ -67,10 +87,6 @@ $(document).ready(function() {
 			.attr('x', button_width / 2)
 			.attr('y', toolbar_height / 2)
 			.text(function(d){return d['title']});
-
-		var svgNode = bg_image
-            .getElementsByTagName("svg")[0];
-        content.node().appendChild(svgNode);
 	}
 
 	function zoomed() {
@@ -96,7 +112,7 @@ $(document).ready(function() {
 
 		sprites.enter().append('g')
 			.attr('class', 'sprite')
-			.attr('transform', function(d){return 'translate(' + (d.x * width) + ',' + -75 + ')'})
+			.attr('transform', function(d){return 'translate(' + (d.x - (75/2)) + ',' + -75 + ')'})
 		.append('svg:image')
 			.attr('xlink:href', function(d){return d['sprite'] + '&text=id' + d['id'].toString()})
 			.attr('width', 75)
@@ -104,11 +120,11 @@ $(document).ready(function() {
 			.attr('class', 'marker');
 		
 		sprites.transition()
-			.attr('transform', function(d){return 'translate(' + (d.x * width) + ',' + d.y * height + ')'});
+			.attr('transform', function(d){return 'translate(' + (d.x - (75/2)) + ',' + (d.y - (75/2)) + ')'});
 
 		sprites.exit()
 			.transition()
-			.attr('transform', function(d){return 'translate(' + (d.x * width) + ',' + -75 + ')'})
+			.attr('transform', function(d){return 'translate(' + (d.x - (75/2)) + ',' + -75 + ')'})
 			.remove();
 
 		sprites.on('mouseover', tip.show)
@@ -144,8 +160,15 @@ $(document).ready(function() {
 		height = svg.node().getBoundingClientRect().height,
 		toolbar_height = 35,
 		button_width = 80,
+		// xScale = d3.scale.linear()
+		// 	.domain([0, 900])
+		// 	.range([0, svg.node().getBoundingClientRect().width]),
+		// yScale = d3.scale.linear()
+		// 	.domain([0, 600])
+		// 	.range([0, svg.node().getBoundingClientRect().height - toolbar_height]),
 		zoom = d3.behavior.zoom()
 	    	.scaleExtent([1, 3])
+	    	.size([width, height - toolbar_height])
 	    	.on("zoom", zoomed),
 		tip = d3.tip()
 			.attr('class', 'd3-tip')
@@ -239,9 +262,9 @@ $(document).ready(function() {
 	/* ============================= */
 
 	queue()
+	    .defer(d3.csv, spreadsheet_url.format(spreadsheet_key, config_sheet))
 	    .defer(d3.csv, spreadsheet_url.format(spreadsheet_key, points_sheet), proc_points)
 	    .defer(d3.csv, spreadsheet_url.format(spreadsheet_key, timeline_sheet), proc_stops)
-	    .defer(d3.xml, background_image)
 	    .await(data_ready);
 
 

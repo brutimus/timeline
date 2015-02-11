@@ -113,7 +113,7 @@ function timeline_chart() {
             .attr('class', 'sprite')
             .attr('transform', function(d){return 'translate(' + (d.x - (75/2)) + ',' + -75 + ')'})
         .append('svg:image')
-            .attr('xlink:href', function(d){return d['sprite'] + '&text=id' + d['id'].toString()})
+            .attr('xlink:href', function(d){return d['sprite']})
             .attr('width', 75)
             .attr('height', 75)
             .attr('class', 'marker');
@@ -154,7 +154,7 @@ function timeline_chart() {
 
     /* ========== SETUP SVG ========== */
 
-    var svg = selection,
+    var svg = selection.select('.canvas'),
         width = svg.node().getBoundingClientRect().width,
         height = svg.node().getBoundingClientRect().height,
         toolbar_height = 35,
@@ -196,7 +196,7 @@ function timeline_chart() {
 
     // DETAILS PANEL
 
-    details_panel = d3.select('.details-panel')
+    details_panel = selection.select('.details-panel')
         .style('top', toolbar_height + 'px')
         .style('right', -(width * .66) + 'px')
         .style('width', (width * .66) + 'px')

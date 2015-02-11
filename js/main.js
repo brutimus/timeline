@@ -7,6 +7,6 @@ $(document).ready(function() {
 	    .config_sheet('48832348')
 	    .points_sheet('0')
 	    .timeline_sheet('37073144');
-	    
-	d3.select('.canvas').call(chart);
+
+	d3.select('.container').call(chart);
 });

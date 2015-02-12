@@ -42,10 +42,14 @@ function timeline_chart() {
             id: d.id,
             x: +d.x,
             y: +d.y,
+            off_x: 0,
+            off_y: 0,
+            obj: null,
             width: +d.width,
             height: +d.height,
             description: d.description,
-            sprite: d.sprite
+            sprite: d.sprite,
+            svg_id: d.svg_id
         }
     }
     function proc_stops(d){
@@ -56,23 +60,53 @@ function timeline_chart() {
         }
     }
 
-    function set_bg_image(config, data){
-        console.log(config, data)
-        var svgNode = data
-            .getElementsByTagName("svg")[0];
+    function load_image(config, points, data){
+        var svgNode = data.getElementsByTagName("svg")[0];
         content.node().appendChild(svgNode);
         d3.select(svgNode)
             .attr('x', config.offset_x)
             .attr('y', config.offset_y)
+
+        // Process all the points here. If we have svg_id values, pull sprites
+        // from the primary image. Otherwise load the sprites from URLs.
+        $.each(points, function(index, el) {
+            if (el.svg_id) {
+                // If you pull objects out of an existing SVG, the coordinate system
+                // remains relative to the parent SVG. So we change the x/y to 0
+                // and off_x/off_y will become our offscreen coordinates.
+                var obj = d3.select(svgNode).select('#' + el.svg_id);
+                var bb = obj.node().getBBox();
+                el.off_x = 0;
+                el.off_y = -(bb.y + bb.height + 50);
+                el.x = 0;
+                el.y = 0;
+                el.obj = obj;
+                content_group.node().appendChild(obj.node());
+                obj.attr('transform', 'translate(' + el.off_x + ',' + el.off_y + ')')
+                    .attr('class', 'sprite');
+            } else {
+                // With newly created objects, the coordinate system is 0,0 relative to
+                // the containing element. Thus our x/y positions will come from the sheet.
+                el.off_x = el.x;
+                el.off_y = -(el.height + 50)
+                el.obj = content_group.append('g')
+                    .attr('class', 'sprite')
+                    .attr('transform', 'translate(' + el.x + ',' + el.off_y + ')');
+                el.obj.append('svg:image')
+                    .attr('xlink:href', el.sprite)
+                    .attr('width', el.width)
+                    .attr('height', el.height)
+                    .attr('class', 'marker');  
+            };
+        });
     }
 
     function data_ready(error, cs, ps, ss) {
         points = ps;
         stops = ss;
         config = proc_config(cs);
-        console.log(config)
 
-        d3.xml(config.image, set_bg_image.bind(this, config));
+        d3.xml(config.image, load_image.bind(null, config, points));
 
         var timeline_buttons = timeline_bar.selectAll('g')
             .data(stops).enter()
@@ -116,21 +150,14 @@ function timeline_chart() {
         var sprites = content.selectAll('.sprite')
             .data(selected_points, function(p) { return p.id; });
 
-        sprites.enter().append('g')
-            .attr('class', 'sprite')
-            .attr('transform', function(d){return 'translate(' + d.x + ',' + -100 + ')'})
-        .append('svg:image')
-            .attr('xlink:href', function(d){return d['sprite']})
-            .attr('width', function(d){return d.width})
-            .attr('height', function(d){return d.height})
-            .attr('class', 'marker');
+        sprites.enter().append(function(d){return d.obj.node()})
         
         sprites.transition()
             .attr('transform', function(d){return 'translate(' + d.x + ',' + d.y + ')'});
 
         sprites.exit()
             .transition()
-            .attr('transform', function(d){return 'translate(' + d.x + ',' + -100 + ')'})
+            .attr('transform', function(d){return 'translate(' + d.off_x + ',' + d.off_y + ')'})
             .remove();
 
         sprites.on('mouseover', tip.show)

@@ -76,12 +76,12 @@ function timeline_chart() {
                 // and off_x/off_y will become our offscreen coordinates.
                 var obj = d3.select(svgNode).select('#' + el.svg_id);
                 var bb = obj.node().getBBox();
+                obj.remove();
                 el.off_x = 0;
                 el.off_y = -(bb.y + bb.height + 50);
                 el.x = 0;
                 el.y = 0;
                 el.obj = obj;
-                content_group.node().appendChild(obj.node());
                 obj.attr('transform', 'translate(' + el.off_x + ',' + el.off_y + ')')
                     .attr('class', 'sprite');
             } else {
@@ -89,7 +89,7 @@ function timeline_chart() {
                 // the containing element. Thus our x/y positions will come from the sheet.
                 el.off_x = el.x;
                 el.off_y = -(el.height + 50)
-                el.obj = content_group.append('g')
+                el.obj = content_group.append('g').remove()
                     .attr('class', 'sprite')
                     .attr('transform', 'translate(' + el.x + ',' + el.off_y + ')');
                 el.obj.append('svg:image')

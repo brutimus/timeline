@@ -42,6 +42,8 @@ function timeline_chart() {
             id: d.id,
             x: +d.x,
             y: +d.y,
+            width: +d.width,
+            height: +d.height,
             description: d.description,
             sprite: d.sprite
         }
@@ -54,18 +56,23 @@ function timeline_chart() {
         }
     }
 
-    function set_bg_image(data){
+    function set_bg_image(config, data){
+        console.log(config, data)
         var svgNode = data
             .getElementsByTagName("svg")[0];
         content.node().appendChild(svgNode);
+        d3.select(svgNode)
+            .attr('x', config.offset_x)
+            .attr('y', config.offset_y)
     }
 
     function data_ready(error, cs, ps, ss) {
         points = ps;
         stops = ss;
         config = proc_config(cs);
+        console.log(config)
 
-        d3.xml(config.image, set_bg_image);
+        d3.xml(config.image, set_bg_image.bind(this, config));
 
         var timeline_buttons = timeline_bar.selectAll('g')
             .data(stops).enter()
@@ -111,19 +118,19 @@ function timeline_chart() {
 
         sprites.enter().append('g')
             .attr('class', 'sprite')
-            .attr('transform', function(d){return 'translate(' + (d.x - (75/2)) + ',' + -75 + ')'})
+            .attr('transform', function(d){return 'translate(' + d.x + ',' + -100 + ')'})
         .append('svg:image')
             .attr('xlink:href', function(d){return d['sprite']})
-            .attr('width', 75)
-            .attr('height', 75)
+            .attr('width', function(d){return d.width})
+            .attr('height', function(d){return d.height})
             .attr('class', 'marker');
         
         sprites.transition()
-            .attr('transform', function(d){return 'translate(' + (d.x - (75/2)) + ',' + (d.y - (75/2)) + ')'});
+            .attr('transform', function(d){return 'translate(' + d.x + ',' + d.y + ')'});
 
         sprites.exit()
             .transition()
-            .attr('transform', function(d){return 'translate(' + (d.x - (75/2)) + ',' + -75 + ')'})
+            .attr('transform', function(d){return 'translate(' + d.x + ',' + -100 + ')'})
             .remove();
 
         sprites.on('mouseover', tip.show)
@@ -273,7 +280,7 @@ function timeline_chart() {
         // ECHO MOUSE POSITION
         svg.on('mousemove.position', function(){
             var coord = d3.mouse(this);
-            console.log((coord[0]/width).toFixed(2), (coord[1]/height).toFixed(2));
+            console.log(coord[0], coord[1]);
         });
     }
 

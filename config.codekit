@@ -1665,7 +1665,7 @@
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0,
 		"outputStyle": 1,
-		"syntaxCheckerStyle": 0
+		"syntaxCheckerStyle": 1
 		},
 	"\/less\/main.less": {
 		"allowInsecureImports": 0,
@@ -1714,14 +1714,6 @@
 	],
 "lastSavedByUser": "Sean Stoops",
 "manualImportLinks": {
-	"\/js\/main.js": [
-		{
-			"followForSyntaxChecking": 1,
-			"linkedFileAbbreviatedPath": "\/js\/timeline-chart.js",
-			"position": 1,
-			"type": 0
-			}
-		]
 	},
 "projectAttributes": {
 	"bowerAbbreviatedPath": "",

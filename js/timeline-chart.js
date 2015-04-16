@@ -47,6 +47,7 @@ function timeline_chart() {
             obj: null,
             width: +d.width,
             height: +d.height,
+            name: d.name,
             description: d.description,
             sprite: d.sprite,
             svg_id: d.svg_id
@@ -134,10 +135,9 @@ function timeline_chart() {
     }
 
     function changeSelection(d, i){
+        timeline_bar.select('g.selected').classed('selected', false);
+        d3.select(timeline_bar.selectAll('g')[0][i]).classed('selected', true);
         hide_details_panel();
-        setTimeout(function(){
-            details_panel.html(d.description)
-        }, 300) // 50ms longer than the panel hide transition
         timeline_marker.select('#marker-details-button')
             .attr('transform', 'translate(0,' + ((toolbar_height - (toolbar_height * .5)) - 2) + ')');
         t0 = timeline_marker.transition();
@@ -161,16 +161,18 @@ function timeline_chart() {
             .remove();
 
         sprites.on('mouseover', tip.show)
-            .on('mouseout', tip.hide);
+            .on('mouseout', tip.hide)
+            .on('click', function(d){toggle_details_panel(d.description)});
     }
-    function toggle_details_panel() {
+    function toggle_details_panel(html) {
         if (details_panel.node().getBoundingClientRect().left < width) {
             hide_details_panel();
         } else {
-            show_details_panel();
+            show_details_panel(html);
         }
     }
-    function show_details_panel(){
+    function show_details_panel(html){
+        details_panel.html(html);
         timeline_marker.select('#marker-details-button').transition()
             .attr('transform', 'translate(0,' + ((toolbar_height - (toolbar_height * .5)) - 2) + ')');
         details_panel.transition()
@@ -207,7 +209,7 @@ function timeline_chart() {
             .attr('class', 'd3-tip')
             .offset([-10, 0])
             .html(function(d) {
-                return "<span>" + d.description + "</span>";
+                return "<span>" + d.name + "</span>";
             });
 
 
@@ -270,7 +272,8 @@ function timeline_chart() {
     marker_details = timeline_marker.append('g')
         .attr('id', 'marker-details-button')
         .attr('transform', 'translate(0,' + ((toolbar_height - (toolbar_height * .5)) - 2) + ')')
-        .on('click', toggle_details_panel);
+        .on('click', function(d){
+            toggle_details_panel(timeline_bar.select('g.selected').datum().description)});
     marker_details.append('rect')
         .attr('width', button_width)
         .attr('height', toolbar_height * .5);

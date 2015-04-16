@@ -1,5 +1,5 @@
 //@codekit-prepend "../bower_components/jquery/dist/jquery.js"
-//@codekit-prepend "timeline_chart.js"
+//@codekit-prepend "timeline-chart.js"
 
 $(document).ready(function() {
 	var chart = timeline_chart()

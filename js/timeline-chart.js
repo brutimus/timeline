@@ -165,8 +165,11 @@ function timeline_chart() {
         sprites.on('mouseover', tip.show)
             .on('mouseout', tip.hide)
             .on('click', function(d){
-                tip.hide();
-                toggle_details_panel(d.description)});
+                if (d.description) {
+                    tip.hide();
+                    toggle_details_panel(d.description);
+                };
+            });
     }
     function toggle_details_panel(html) {
         if (details_panel.node().getBoundingClientRect().left < width) {

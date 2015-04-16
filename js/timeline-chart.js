@@ -140,10 +140,12 @@ function timeline_chart() {
         hide_details_panel();
         timeline_marker.select('#marker-details-button')
             .attr('transform', 'translate(0,' + ((toolbar_height - (toolbar_height * .5)) - 2) + ')');
-        t0 = timeline_marker.transition();
-        t0.attr('transform', 'translate(' + button_width * i + ',2)');
-        t0.transition().select('#marker-details-button')
-            .attr('transform', 'translate(0,' + (toolbar_height - 2) + ')');
+            t0 = timeline_marker.transition();
+            t0.attr('transform', 'translate(' + button_width * i + ',2)');
+        if (d.description) {
+            t0.transition().select('#marker-details-button')
+                .attr('transform', 'translate(0,' + (toolbar_height - 2) + ')');
+        };
         selected_points = $(points).filter(function() {
                 return $.inArray(this.id, d.points) > -1
             });
@@ -162,7 +164,9 @@ function timeline_chart() {
 
         sprites.on('mouseover', tip.show)
             .on('mouseout', tip.hide)
-            .on('click', function(d){toggle_details_panel(d.description)});
+            .on('click', function(d){
+                tip.hide();
+                toggle_details_panel(d.description)});
     }
     function toggle_details_panel(html) {
         if (details_panel.node().getBoundingClientRect().left < width) {
@@ -178,7 +182,8 @@ function timeline_chart() {
         details_panel.transition()
             .style('right', '0px');
         details_panel_close.transition().delay(50).duration(300)
-            .attr('transform', 'translate(' + ((width * .33) - (toolbar_height / 2)) + ',' + ((height / 2) - (button_width / 2)) + ')')
+            .attr('transform',
+                'translate(' + ((width * .33) - (toolbar_height / 2)) + ',' + ((height / 2) - (button_width / 2)) + ')')
     }
     function hide_details_panel(){
         details_panel.transition()

@@ -5,7 +5,7 @@
 @bg-color2: #4F51A7;
 @bg-color3: #F0CA5C;
 @bg-color4: #F0B05C;
-@fg-color: #eee;
+@fg-color: #fff;
 
 body {
 	font-family: 'Source Sans Pro',sans-serif;
@@ -30,11 +30,12 @@ text {
 .details-panel {
 	position: absolute;
 	display: none;
-	background-color: darken(@bg-color, 10%);
+	background-color: @fg-color;
 	overflow: auto;
-	padding: 10px 30px;
+	padding: 10px 20px;
 	box-sizing: border-box;
-	color: @fg-color;
+	color: darken(@bg-color, 10%);
+	font-size: .9em;
 	
 	img {
 		float: left;
@@ -45,10 +46,10 @@ text {
 	cursor: pointer;
 
 	rect {
-		fill: darken(@bg-color, 10%);
+		fill: @fg-color;
 	}
 	text {
-		fill: @fg-color;
+		fill: darken(@bg-color, 10%);
 		stroke: none;
 		font-weight: 300;
 		letter-spacing: .3px;

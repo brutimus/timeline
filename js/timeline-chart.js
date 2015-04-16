@@ -183,14 +183,14 @@ function timeline_chart() {
         timeline_marker.select('#marker-details-button').transition()
             .attr('transform', 'translate(0,' + ((toolbar_height - (toolbar_height * .5)) - 2) + ')');
         details_panel.transition()
-            .style('right', '0px');
+            .style('right', details_panel_margin + 'px');
         details_panel_close.transition().delay(50).duration(300)
             .attr('transform',
-                'translate(' + ((width * .33) - (toolbar_height / 2)) + ',' + ((height / 2) - (button_width / 2)) + ')')
+                'translate(' + ((width * (1 - details_panel_width)) - toolbar_height) + ',' + ((height / 2) - (button_width / 2)) + ')')
     }
     function hide_details_panel(){
         details_panel.transition()
-            .style('right', -(width * .66) + 'px');
+            .style('right', -(width * details_panel_width) + 'px');
         details_panel_close.transition()
             .attr('transform', 'translate(' + width + ',' + ((height / 2) - (button_width / 2)) + ')')
     }
@@ -203,6 +203,8 @@ function timeline_chart() {
         height = svg.node().getBoundingClientRect().height,
         toolbar_height = 35,
         button_width = 80,
+        details_panel_margin = 20,
+        details_panel_width = .5,
         // xScale = d3.scale.linear()
         //  .domain([0, 900])
         //  .range([0, svg.node().getBoundingClientRect().width]),
@@ -241,10 +243,10 @@ function timeline_chart() {
     // DETAILS PANEL
 
     details_panel = selection.select('.details-panel')
-        .style('top', toolbar_height + 'px')
-        .style('right', -(width * .66) + 'px')
-        .style('width', (width * .66) + 'px')
-        .style('height', (height - toolbar_height) + 'px')
+        .style('top', toolbar_height + details_panel_margin + 'px')
+        .style('right', -(width * details_panel_width) + 'px')
+        .style('width', (width * details_panel_width - details_panel_margin) + 'px')
+        .style('height', (height - toolbar_height - (details_panel_margin * 2)) + 'px')
         .style('display', 'block');
 
     details_panel_close = svg.append('g')

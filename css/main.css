@@ -20,11 +20,12 @@ text {
 .details-panel {
   position: absolute;
   display: none;
-  background-color: #325a76;
+  background-color: #ffffff;
   overflow: auto;
-  padding: 10px 30px;
+  padding: 10px 20px;
   box-sizing: border-box;
-  color: #eeeeee;
+  color: #325a76;
+  font-size: .9em;
 }
 .details-panel img {
   float: left;
@@ -34,10 +35,10 @@ text {
   cursor: pointer;
 }
 .details-panel-close rect {
-  fill: #325a76;
+  fill: #ffffff;
 }
 .details-panel-close text {
-  fill: #eeeeee;
+  fill: #325a76;
   stroke: none;
   font-weight: 300;
   letter-spacing: .3px;

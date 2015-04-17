@@ -135,6 +135,9 @@ function timeline_chart() {
     }
 
     function changeSelection(d, i){
+        // If the click is on the already selected element, don't do anything
+        if (timeline_bar.select('g.selected').node() == timeline_bar.selectAll('g')[0][i]) return;
+        
         timeline_bar.select('g.selected').classed('selected', false);
         d3.select(timeline_bar.selectAll('g')[0][i]).classed('selected', true);
         hide_details_panel();

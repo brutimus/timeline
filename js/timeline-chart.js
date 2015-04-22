@@ -50,7 +50,8 @@ function timeline_chart() {
             name: d.name,
             description: d.description,
             sprite: d.sprite,
-            svg_id: d.svg_id
+            svg_id: d.svg_id,
+            svg_bb: null
         }
     }
     function proc_stops(d){
@@ -61,12 +62,97 @@ function timeline_chart() {
         }
     }
 
+    function draw_ui(config){
+        /* ========== SETUP UI ========== */
+
+        // CONTENT AREA
+
+        content_group = svg.append('g')
+            .attr('class', 'content')
+            .attr('transform', "translate(0," + toolbar_height + ")");
+        content_group.append('rect')
+            .attr('id', 'content-background')
+            .attr('width', '100%')
+            .attr('height', height - toolbar_height);
+
+        content = content_group.append('g');
+
+
+        // DETAILS PANEL
+        details_panel = selection.select('.details-panel')
+            .style('top', toolbar_height + details_panel_margin + 'px')
+            .style('right', -(width * details_panel_width) + 'px')
+            .style('width', (width * details_panel_width - details_panel_margin) + 'px')
+            .style('height', (height - toolbar_height - (details_panel_margin * 2)) + 'px')
+            .style('display', 'block');
+
+        details_panel_close = svg.append('g')
+            .attr('class', 'details-panel-close')
+            .attr('transform', 'translate(' + width + ',' + ((height / 2) - (button_width / 2)) + ')')
+            .on('click', function(){
+                hide_details_panel();
+                timeline_marker.select('#marker-details-button').transition()
+                .attr('transform', 'translate(0,' + (toolbar_height - 2) + ')');
+            });
+        details_panel_close.append('rect')
+            .attr('width', toolbar_height)
+            .attr('height', button_width);
+        details_panel_close.append('text')
+            .attr('x', -button_width / 2)
+            .attr('y', toolbar_height / 2)
+            .attr('transform', 'rotate(-90)')
+            .text('CLOSE');
+
+
+        // TOOLBAR BACKGROUND
+        
+        svg.append('rect')
+            .attr('id', 'timeline-background')
+            .attr('width', '100%')
+            .attr('height', toolbar_height);
+
+
+        // TOOLBAR SELECTION MARKER
+
+        timeline_marker = svg.append('g')
+            .attr('transform', 'translate(' + -button_width + ',2)');
+        marker_details = timeline_marker.append('g')
+            .attr('id', 'marker-details-button')
+            .attr('transform', 'translate(0,' + ((toolbar_height - (toolbar_height * .5)) - 2) + ')')
+            .on('click', function(d){
+                toggle_details_panel(timeline_bar.select('g.selected').datum().description)});
+        marker_details.append('rect')
+            .attr('width', button_width)
+            .attr('height', toolbar_height * .5);
+        marker_details.append('text')
+            .attr('x', button_width / 2)
+            .attr('y', (toolbar_height * .5) / 2)
+            .text('DETAILS');
+        timeline_marker.append('rect')
+            .attr('id', 'timeline-marker')
+            .attr('width', button_width)
+            .attr('height', toolbar_height - 2);
+
+
+        // TOOLBAR BUTTON CONTAINER
+
+        timeline_bar = svg.append('g')
+            .attr('class', 'timeline-controls');
+
+        content_group
+            .call(zoom)
+            .call(zoom.event)
+            .call(tip);
+    }
+
     function load_image(config, points, data){
         var svgNode = data.getElementsByTagName("svg")[0];
         content.node().appendChild(svgNode);
         d3.select(svgNode)
             .attr('x', config.offset_x)
-            .attr('y', config.offset_y)
+            .attr('y', config.offset_y);
+        // console.log([config.offset_x * -1, config.offset_y * -1])
+        // zoom.translate([config.offset_x * -1, config.offset_y * -1]).event(svg);
 
         // Process all the points here. If we have svg_id values, pull sprites
         // from the primary image. Otherwise load the sprites from URLs.
@@ -77,6 +163,7 @@ function timeline_chart() {
                 // and off_x/off_y will become our offscreen coordinates.
                 var obj = d3.select(svgNode).select('#' + el.svg_id);
                 var bb = obj.node().getBBox();
+                el.svg_bb = bb;
                 obj.remove();
                 el.off_x = 0;
                 el.off_y = -(bb.y + bb.height + 50);
@@ -106,6 +193,13 @@ function timeline_chart() {
         points = ps;
         stops = ss;
         config = proc_config(cs);
+
+        button_width = parseInt(config.button_width);
+        toolbar_height = parseInt(config.toolbar_height);
+        details_panel_margin = parseInt(config.details_panel_margin);
+        details_panel_width = parseFloat(config.details_panel_width);
+
+        draw_ui(config);
 
         d3.xml(config.image, load_image.bind(null, config, points));
 
@@ -165,6 +259,24 @@ function timeline_chart() {
             .attr('transform', function(d){return 'translate(' + d.off_x + ',' + d.off_y + ')'})
             .remove();
 
+        var bbx1 = Math.min.apply(Math, $.map(selected_points, function(d) {return d.svg_bb.x;})),
+            bby1 = Math.min.apply(Math, $.map(selected_points, function(d) {return d.svg_bb.y;})),
+            bbx2 = Math.max.apply(Math, $.map(selected_points, function(d) {return d.svg_bb.x;})),
+            bby2 = Math.max.apply(Math, $.map(selected_points, function(d) {return d.svg_bb.y;})),
+            dx = bbx2 - bbx1,
+            dy = bby2 - bby1,
+            x = (bbx1 + bbx2) / 2,
+            y = (bby1 + bby2) / 2,
+            scale = .9 / Math.max(dx / width, dy / (height - toolbar_height)),
+            translate = [width / 2 - scale * x, (height - toolbar_height) / 2 - scale * y];
+        console.log(width, height, bbx1, bbx2, bby1, bby2, translate)
+
+        content_group
+            // .attr('tranform', 'translate(0,0)')
+            // .transition()
+            // .duration(750)
+            .call(zoom.translate(translate).scale(scale).event);
+
         sprites.on('mouseover', tip.show)
             .on('mouseout', tip.hide)
             .on('click', function(d){
@@ -202,12 +314,13 @@ function timeline_chart() {
     /* ========== SETUP SVG ========== */
 
     var svg = selection.select('.canvas'),
+        content_group,
         width = svg.node().getBoundingClientRect().width,
         height = svg.node().getBoundingClientRect().height,
-        toolbar_height = 35,
-        button_width = 80,
-        details_panel_margin = 20,
-        details_panel_width = .5,
+        toolbar_height,
+        button_width,
+        details_panel_margin,
+        details_panel_width,
         // xScale = d3.scale.linear()
         //  .domain([0, 900])
         //  .range([0, svg.node().getBoundingClientRect().width]),
@@ -226,84 +339,7 @@ function timeline_chart() {
             });
 
 
-    /* ========== SETUP UI ========== */
-
-    // CONTENT AREA
-
-    content_group = svg.append('g')
-        .attr('class', 'content')
-        .attr('transform', "translate(0," + toolbar_height + ")")
-        .call(zoom)
-        .call(tip);
-    content_group.append('rect')
-        .attr('id', 'content-background')
-        .attr('width', '100%')
-        .attr('height', height - toolbar_height);
-
-    content = content_group.append('g');
-
-
-    // DETAILS PANEL
-
-    details_panel = selection.select('.details-panel')
-        .style('top', toolbar_height + details_panel_margin + 'px')
-        .style('right', -(width * details_panel_width) + 'px')
-        .style('width', (width * details_panel_width - details_panel_margin) + 'px')
-        .style('height', (height - toolbar_height - (details_panel_margin * 2)) + 'px')
-        .style('display', 'block');
-
-    details_panel_close = svg.append('g')
-        .attr('class', 'details-panel-close')
-        .attr('transform', 'translate(' + width + ',' + ((height / 2) - (button_width / 2)) + ')')
-        .on('click', function(){
-            hide_details_panel();
-            timeline_marker.select('#marker-details-button').transition()
-            .attr('transform', 'translate(0,' + (toolbar_height - 2) + ')');
-        });
-    details_panel_close.append('rect')
-        .attr('width', toolbar_height)
-        .attr('height', button_width);
-    details_panel_close.append('text')
-        .attr('x', -button_width / 2)
-        .attr('y', toolbar_height / 2)
-        .attr('transform', 'rotate(-90)')
-        .text('CLOSE');
-
-
-    // TOOLBAR BACKGROUND
     
-    svg.append('rect')
-        .attr('id', 'timeline-background')
-        .attr('width', '100%')
-        .attr('height', toolbar_height);
-
-
-    // TOOLBAR SELECTION MARKER
-
-    timeline_marker = svg.append('g')
-        .attr('transform', 'translate(' + -button_width + ',2)');
-    marker_details = timeline_marker.append('g')
-        .attr('id', 'marker-details-button')
-        .attr('transform', 'translate(0,' + ((toolbar_height - (toolbar_height * .5)) - 2) + ')')
-        .on('click', function(d){
-            toggle_details_panel(timeline_bar.select('g.selected').datum().description)});
-    marker_details.append('rect')
-        .attr('width', button_width)
-        .attr('height', toolbar_height * .5);
-    marker_details.append('text')
-        .attr('x', button_width / 2)
-        .attr('y', (toolbar_height * .5) / 2)
-        .text('DETAILS');
-    timeline_marker.append('rect')
-        .attr('id', 'timeline-marker')
-        .attr('width', button_width)
-        .attr('height', toolbar_height - 2);
-
-
-    // TOOLBAR BUTTON CONTAINER
-
-    timeline_bar = svg.append('g')
-        .attr('class', 'timeline-controls');
 
 
     /* ============================= */

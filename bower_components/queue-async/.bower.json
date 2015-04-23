@@ -11,6 +11,5 @@
   },
   "_source": "git://github.com/mbostock/queue.git",
   "_target": "~1.0.7",
-  "_originalSource": "queue-async",
-  "_direct": true
+  "_originalSource": "queue-async"
 }

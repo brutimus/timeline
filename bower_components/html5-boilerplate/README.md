@@ -1,4 +1,4 @@
-# [HTML5 Boilerplate](http://html5boilerplate.com)
+# [HTML5 Boilerplate](https://html5boilerplate.com)
 
 [![Build Status](https://travis-ci.org/h5bp/html5-boilerplate.svg)](https://travis-ci.org/h5bp/html5-boilerplate)
 [![devDependency Status](https://david-dm.org/h5bp/html5-boilerplate/dev-status.svg)](https://david-dm.org/h5bp/html5-boilerplate#info=devDependencies)
@@ -11,7 +11,7 @@ community knowledge. It does not impose a specific development philosophy or
 framework, so you're free to architect your code in the way that you want.
 
 * Source: [https://github.com/h5bp/html5-boilerplate](https://github.com/h5bp/html5-boilerplate)
-* Homepage: [http://html5boilerplate.com](http://html5boilerplate.com)
+* Homepage: [https://html5boilerplate.com](https://html5boilerplate.com)
 * Twitter: [@h5bp](https://twitter.com/h5bp)
 
 
@@ -20,7 +20,7 @@ framework, so you're free to architect your code in the way that you want.
 Choose one of the following options:
 
 1. Download the latest stable release from
-   [html5boilerplate.com](http://html5boilerplate.com/) or a custom build from
+   [html5boilerplate.com](https://html5boilerplate.com/) or a custom build from
    [Initializr](http://www.initializr.com).
 2. Clone the git repo — `git clone
    https://github.com/h5bp/html5-boilerplate.git` - and checkout the [tagged
@@ -31,7 +31,6 @@ Choose one of the following options:
 ## Features
 
 * HTML5 ready. Use the new elements with confidence.
-* Cross-browser compatible (Chrome, Firefox, IE8+, Opera, Safari).
 * Designed with progressive enhancement in mind.
 * Includes [Normalize.css](http://necolas.github.com/normalize.css/) for CSS
   normalizations and common bug fixes.
@@ -48,9 +47,22 @@ Choose one of the following options:
 * "Delete-key friendly." Easy to strip out parts you don't need.
 * Extensive inline and accompanying documentation.
 
-[HTML5 Boilerplate v4 provides legacy browser
-support](https://github.com/h5bp/html5-boilerplate/tree/v4) (IE 6+, Firefox
-3.6+, Safari 4+), but is no longer actively developed.
+
+## Browser support
+
+* Chrome *(latest 2)*
+* Firefox *(latest 2)*
+* Internet Explorer 8+
+* Opera *(latest 2)*
+* Safari *(latest 2)*
+
+*This doesn't mean that HTML5 Boilerplate cannot be used in older browsers,
+just that we'll ensure compatibility with the ones mentioned above.*
+
+If you need legacy browser support (IE 6+, Firefox 3.6+, Safari 4+) you can use
+[HTML5 Boilerplate v4](https://github.com/h5bp/html5-boilerplate/tree/v4), but
+is no longer actively developed.
+
 
 ## Documentation
 
@@ -64,3 +76,8 @@ want to write about your project.
 
 Anyone and everyone is welcome to [contribute](CONTRIBUTING.md). Hundreds of
 developers have helped make the HTML5 Boilerplate what it is today.
+
+
+## License
+
+The code is available under the [MIT license](LICENSE.txt).

@@ -91,8 +91,10 @@ function timeline_chart() {
             .attr('transform', 'translate(' + width + ',' + ((height / 2) - (button_width / 2)) + ')')
             .on('click', function(){
                 hide_details_panel();
-                timeline_marker.select('#marker-details-button').transition()
-                .attr('transform', 'translate(0,' + (toolbar_height - 2) + ')');
+                if (timeline_bar.select('g.selected').datum().description) {
+                    timeline_marker.select('#marker-details-button').transition()
+                       .attr('transform', 'translate(0,' + (toolbar_height - 2) + ')');
+                }
             });
         details_panel_close.append('rect')
             .attr('width', toolbar_height)
@@ -283,7 +285,6 @@ function timeline_chart() {
             y = (bby1 + bby2) / 2,
             scale = .9 / Math.max(dx / width, dy / (height - toolbar_height)),
             translate = [width / 2 - scale * x, (height - toolbar_height) / 2 - scale * y];
-        console.log(width, height, bbx1, bbx2, bby1, bby2, translate)
 
         content
             .transition()

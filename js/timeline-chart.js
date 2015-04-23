@@ -139,6 +139,21 @@ function timeline_chart() {
         timeline_bar = svg.append('g')
             .attr('class', 'timeline-controls');
 
+
+        // EFFECTS
+
+        zoom = d3.behavior.zoom()
+            .scaleExtent([1, 3])
+            .size([width, height - toolbar_height])
+            .on("zoom", zoomed);
+
+        tip = d3.tip()
+            .attr('class', 'd3-tip')
+            .offset([-10, 0])
+            .html(function(d) {
+                return "<span>" + d.name + "</span>";
+            });
+
         content_group
             .call(zoom)
             .call(zoom.event)
@@ -151,8 +166,7 @@ function timeline_chart() {
         d3.select(svgNode)
             .attr('x', config.offset_x)
             .attr('y', config.offset_y);
-        // console.log([config.offset_x * -1, config.offset_y * -1])
-        // zoom.translate([config.offset_x * -1, config.offset_y * -1]).event(svg);
+        zoom.translate([config.offset_x * -1, config.offset_y * -1]).event(content);
 
         // Process all the points here. If we have svg_id values, pull sprites
         // from the primary image. Otherwise load the sprites from URLs.
@@ -271,10 +285,9 @@ function timeline_chart() {
             translate = [width / 2 - scale * x, (height - toolbar_height) / 2 - scale * y];
         console.log(width, height, bbx1, bbx2, bby1, bby2, translate)
 
-        content_group
-            // .attr('tranform', 'translate(0,0)')
-            // .transition()
-            // .duration(750)
+        content
+            .transition()
+            .duration(750)
             .call(zoom.translate(translate).scale(scale).event);
 
         sprites.on('mouseover', tip.show)
@@ -327,16 +340,9 @@ function timeline_chart() {
         // yScale = d3.scale.linear()
         //  .domain([0, 600])
         //  .range([0, svg.node().getBoundingClientRect().height - toolbar_height]),
-        zoom = d3.behavior.zoom()
-            .scaleExtent([1, 3])
-            .size([width, height - toolbar_height])
-            .on("zoom", zoomed),
-        tip = d3.tip()
-            .attr('class', 'd3-tip')
-            .offset([-10, 0])
-            .html(function(d) {
-                return "<span>" + d.name + "</span>";
-            });
+        zoom,
+        tip;
+        
 
 
     

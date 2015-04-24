@@ -309,29 +309,47 @@ function timeline_chart() {
 
         zoomToPoints(selected_points);
 
+
+        // -----
+
+        var list = d3.select('#map_items').selectAll('li')
+            .data(selected_points, function(p) { return p.id; });
+        list.enter()
+            .append('li')
+            .text(function(d){return d.name})
+            .on('click', pointClickFn)
+        list.exit()
+            .remove();
+
+        // -----
+
         sprites.on('mouseenter', tip.show)
             .on('mouseleave', tip.hide)
-            .on('click', function(d){
-                var sprite = d3.select(this);
-                if (sprite.classed('selected')) {
-                    sprite.classed('selected', false);
-                    hide_details_panel();
-                    tip.hide();
-                    zoomToPoints(selected_points);
-                } else {
-                    if (zoom_state == 'point' && d.description) {
-                        details_panel.html(d.description);
-                    } else if (zoom_state == 'group' && d.description) {
-                        show_details_panel(d.description);
-                    } else {
-                        hide_details_panel();
-                    };
-                    d3.select('.sprite.selected').classed('selected', false);
-                    sprite.classed('selected', true);
-                    tip.hide();
-                    zoomToPoint(d);
-                }
-            });
+            .on('click', pointClickFn);
+    }
+    function pointClickFn(d){
+        var sprite = d3.selectAll('.sprite').filter(function(data, i) {
+            return d.id == data.id;
+        });
+
+        if (sprite.classed('selected')) {
+            sprite.classed('selected', false);
+            hide_details_panel();
+            tip.hide();
+            zoomToPoints(selected_points);
+        } else {
+            if (zoom_state == 'point' && d.description) {
+                details_panel.html(d.description);
+            } else if (zoom_state == 'group' && d.description) {
+                show_details_panel(d.description);
+            } else {
+                hide_details_panel();
+            };
+            d3.select('.sprite.selected').classed('selected', false);
+            sprite.classed('selected', true);
+            tip.hide();
+            zoomToPoint(d);
+        }
     }
     function toggle_details_panel(html) {
         if (details_panel.node().getBoundingClientRect().left < width) {

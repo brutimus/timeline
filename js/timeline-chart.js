@@ -295,11 +295,11 @@ function timeline_chart() {
 
         sprites.enter().append(function(d){return d.obj.node()})
         
-        sprites.transition()
+        sprites.transition().duration(750)
             .attr('transform', function(d){return 'translate(' + d.x + ',' + d.y + ')'});
 
         sprites.exit()
-            .transition()
+            .transition().duration(750)
             .attr('transform', function(d){return 'translate(' + d.off_x + ',' + d.off_y + ')'})
             .remove();
 

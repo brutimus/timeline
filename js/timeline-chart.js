@@ -309,13 +309,14 @@ function timeline_chart() {
 
         zoomToPoints(selected_points);
 
-        sprites.on('mouseover', tip.show)
-            .on('mouseout', tip.hide)
+        sprites.on('mouseenter', tip.show)
+            .on('mouseleave', tip.hide)
             .on('click', function(d){
                 var sprite = d3.select(this);
                 if (sprite.classed('selected')) {
                     sprite.classed('selected', false);
                     hide_details_panel();
+                    tip.hide();
                     zoomToPoints(selected_points);
                 } else {
                     if (zoom_state == 'point' && d.description) {

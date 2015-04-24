@@ -91,6 +91,8 @@ function timeline_chart() {
             .attr('transform', 'translate(' + width + ',' + ((height / 2) - (button_width / 2)) + ')')
             .on('click', function(){
                 hide_details_panel();
+                d3.select('.sprite.selected').classed('selected', false);
+                zoomToPoints(selected_points);
                 if (timeline_bar.select('g.selected').datum().description) {
                     timeline_marker.select('#marker-details-button').transition()
                        .attr('transform', 'translate(0,' + (toolbar_height - 2) + ')');
@@ -245,6 +247,7 @@ function timeline_chart() {
     }
 
     function zoomToPoint(point){
+        zoom_state = 'point',
         scale = 3,
         translate = [(width * .25) - scale * point.svg_bb.x, (height - toolbar_height) / 2 - scale * point.svg_bb.y];
 
@@ -255,6 +258,7 @@ function timeline_chart() {
     }
 
     function zoomToPoints(points){
+        zoom_state = 'group';
         var bbx1 = Math.min.apply(Math, $.map(points, function(d) {return d.svg_bb.x;})),
             bby1 = Math.min.apply(Math, $.map(points, function(d) {return d.svg_bb.y;})),
             bbx2 = Math.max.apply(Math, $.map(points, function(d) {return d.svg_bb.x;})),
@@ -308,11 +312,24 @@ function timeline_chart() {
         sprites.on('mouseover', tip.show)
             .on('mouseout', tip.hide)
             .on('click', function(d){
-                if (d.description) {
+                var sprite = d3.select(this);
+                if (sprite.classed('selected')) {
+                    sprite.classed('selected', false);
+                    hide_details_panel();
+                    zoomToPoints(selected_points);
+                } else {
+                    if (zoom_state == 'point' && d.description) {
+                        details_panel.html(d.description);
+                    } else if (zoom_state == 'group' && d.description) {
+                        show_details_panel(d.description);
+                    } else {
+                        hide_details_panel();
+                    };
+                    d3.select('.sprite.selected').classed('selected', false);
+                    sprite.classed('selected', true);
                     tip.hide();
-                    toggle_details_panel(d.description);
-                    zoomToPoint(d)
-                };
+                    zoomToPoint(d);
+                }
             });
     }
     function toggle_details_panel(html) {
@@ -333,9 +350,6 @@ function timeline_chart() {
                 'translate(' + ((width * (1 - details_panel_width)) - toolbar_height) + ',' + ((height / 2) - ((toolbar_height * 3) / 2)) + ')')
     }
     function hide_details_panel(){
-        if (selected_points) {
-            zoomToPoints(selected_points);
-        };
         details_panel.transition()
             .style('right', -(width * details_panel_width) + 'px');
         details_panel_close.transition()
@@ -354,19 +368,9 @@ function timeline_chart() {
         details_panel_margin,
         details_panel_width,
         selected_points,
-        // xScale = d3.scale.linear()
-        //  .domain([0, 900])
-        //  .range([0, svg.node().getBoundingClientRect().width]),
-        // yScale = d3.scale.linear()
-        //  .domain([0, 600])
-        //  .range([0, svg.node().getBoundingClientRect().height - toolbar_height]),
         zoom,
-        tip;
-        
-
-
-    
-
+        tip,
+        zoom_state = null;
 
     /* ============================= */
     /* ========== RUNTIME ========== */

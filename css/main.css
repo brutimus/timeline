@@ -24,12 +24,22 @@ text {
   overflow: auto;
   padding: 10px 20px;
   box-sizing: border-box;
-  color: #325a76;
+  color: #41759a;
   font-size: .9em;
+  box-shadow: 4px 4px 20px -12px #000000;
+}
+.details-panel h1 {
+  font-size: 2.5em;
+  line-height: 1em;
+  margin-bottom: 7px;
+}
+.details-panel .photo {
+  display: block;
+  margin: -25px -20px 0px -20px;
 }
 .details-panel img {
-  float: left;
-  margin: 15px 15px 15px 0;
+  display: block;
+  margin: -25px -10px -10px 0;
   max-width: 100%;
 }
 .details-panel .address,
@@ -39,6 +49,16 @@ text {
   font-weight: 600;
   text-transform: uppercase;
   display: block;
+  color: #7aa7c7;
+}
+.details-panel .address a,
+.details-panel .phone a,
+.details-panel .website a {
+  color: #7aa7c7;
+}
+.details-panel p {
+  color: #325a76;
+  margin-top: 7px;
 }
 .details-panel-close {
   cursor: pointer;

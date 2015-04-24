@@ -225,6 +225,7 @@ function timeline_chart() {
             .data(stops).enter()
         .append('g');
         timeline_buttons.attr('class', 'timeline-point')
+            .style('stroke-dasharray', button_width + ' 1000')
             .attr("transform", function(d, i) { return "translate(0, 0)"; })
             .transition()
             .attr("transform", function(d, i) { return "translate(" + i * button_width + ", 0)"; })
@@ -240,6 +241,9 @@ function timeline_chart() {
             .attr('x', button_width / 2)
             .attr('y', toolbar_height / 2)
             .text(function(d){return d['title']});
+
+        // Select first stop by default
+        setTimeout(function(){changeSelection(stops[0], 0)}, 100);
     }
 
     function zoomed() {

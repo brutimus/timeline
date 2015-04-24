@@ -146,7 +146,6 @@ text {
   fill: #fff;
   stroke: #41759a;
   stroke-width: 4px;
-  stroke-dasharray: 80 1000;
 }
 .canvas .timeline-controls .timeline-point text {
   fill: #41759a;

@@ -263,7 +263,7 @@ function timeline_chart() {
             dy = bby2 - bby1,
             x = (bbx1 + bbx2) / 2,
             y = (bby1 + bby2) / 2,
-            scale = .9 / Math.max(dx / width, dy / (height - toolbar_height)),
+            scale = Math.min(.9 / Math.max(dx / width, dy / (height - toolbar_height)), 3),
             translate = [width / 2 - scale * x, (height - toolbar_height) / 2 - scale * y];
 
         return content

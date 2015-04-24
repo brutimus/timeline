@@ -98,9 +98,9 @@ function timeline_chart() {
             });
         details_panel_close.append('rect')
             .attr('width', toolbar_height)
-            .attr('height', button_width);
+            .attr('height', toolbar_height * 3);
         details_panel_close.append('text')
-            .attr('x', -button_width / 2)
+            .attr('x', -(toolbar_height * 3) / 2)
             .attr('y', toolbar_height / 2)
             .attr('transform', 'rotate(-90)')
             .text('CLOSE');
@@ -244,6 +244,34 @@ function timeline_chart() {
         content.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     }
 
+    function zoomToPoint(point){
+        scale = 3,
+        translate = [(width * .25) - scale * point.svg_bb.x, (height - toolbar_height) / 2 - scale * point.svg_bb.y];
+
+        return content
+            .transition()
+            .duration(750)
+            .call(zoom.translate(translate).scale(scale).event);
+    }
+
+    function zoomToPoints(points){
+        var bbx1 = Math.min.apply(Math, $.map(points, function(d) {return d.svg_bb.x;})),
+            bby1 = Math.min.apply(Math, $.map(points, function(d) {return d.svg_bb.y;})),
+            bbx2 = Math.max.apply(Math, $.map(points, function(d) {return d.svg_bb.x;})),
+            bby2 = Math.max.apply(Math, $.map(points, function(d) {return d.svg_bb.y;})),
+            dx = bbx2 - bbx1,
+            dy = bby2 - bby1,
+            x = (bbx1 + bbx2) / 2,
+            y = (bby1 + bby2) / 2,
+            scale = .9 / Math.max(dx / width, dy / (height - toolbar_height)),
+            translate = [width / 2 - scale * x, (height - toolbar_height) / 2 - scale * y];
+
+        return content
+            .transition()
+            .duration(750)
+            .call(zoom.translate(translate).scale(scale).event);
+    }
+
     function changeSelection(d, i){
         // If the click is on the already selected element, don't do anything
         if (timeline_bar.select('g.selected').node() == timeline_bar.selectAll('g')[0][i]) return;
@@ -275,21 +303,7 @@ function timeline_chart() {
             .attr('transform', function(d){return 'translate(' + d.off_x + ',' + d.off_y + ')'})
             .remove();
 
-        var bbx1 = Math.min.apply(Math, $.map(selected_points, function(d) {return d.svg_bb.x;})),
-            bby1 = Math.min.apply(Math, $.map(selected_points, function(d) {return d.svg_bb.y;})),
-            bbx2 = Math.max.apply(Math, $.map(selected_points, function(d) {return d.svg_bb.x;})),
-            bby2 = Math.max.apply(Math, $.map(selected_points, function(d) {return d.svg_bb.y;})),
-            dx = bbx2 - bbx1,
-            dy = bby2 - bby1,
-            x = (bbx1 + bbx2) / 2,
-            y = (bby1 + bby2) / 2,
-            scale = .9 / Math.max(dx / width, dy / (height - toolbar_height)),
-            translate = [width / 2 - scale * x, (height - toolbar_height) / 2 - scale * y];
-
-        content
-            .transition()
-            .duration(750)
-            .call(zoom.translate(translate).scale(scale).event);
+        zoomToPoints(selected_points);
 
         sprites.on('mouseover', tip.show)
             .on('mouseout', tip.hide)
@@ -297,6 +311,7 @@ function timeline_chart() {
                 if (d.description) {
                     tip.hide();
                     toggle_details_panel(d.description);
+                    zoomToPoint(d)
                 };
             });
     }
@@ -315,9 +330,12 @@ function timeline_chart() {
             .style('right', details_panel_margin + 'px');
         details_panel_close.transition().delay(50).duration(300)
             .attr('transform',
-                'translate(' + ((width * (1 - details_panel_width)) - toolbar_height) + ',' + ((height / 2) - (button_width / 2)) + ')')
+                'translate(' + ((width * (1 - details_panel_width)) - toolbar_height) + ',' + ((height / 2) - ((toolbar_height * 3) / 2)) + ')')
     }
     function hide_details_panel(){
+        if (selected_points) {
+            zoomToPoints(selected_points);
+        };
         details_panel.transition()
             .style('right', -(width * details_panel_width) + 'px');
         details_panel_close.transition()
@@ -335,6 +353,7 @@ function timeline_chart() {
         button_width,
         details_panel_margin,
         details_panel_width,
+        selected_points,
         // xScale = d3.scale.linear()
         //  .domain([0, 900])
         //  .range([0, svg.node().getBoundingClientRect().width]),

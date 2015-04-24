@@ -10,8 +10,8 @@ text {
 .container {
   position: relative;
   width: 100%;
-  max-width: 640px;
-  height: 640px;
+  width: 940px;
+  height: 600px;
   overflow: hidden;
   margin: 0 auto;
   border: 1px solid #eee;
@@ -58,7 +58,7 @@ text {
 }
 .canvas #timeline-background {
   fill: #fff;
-  stroke-dasharray: 640 10000;
+  stroke-dasharray: 940 10000;
   stroke-width: 4px;
   stroke: #41759a;
 }

@@ -23,8 +23,7 @@ function timeline_chart() {
   function my(selection) {
     
     /* ========== VARIABLES & FUNCTIONS ========== */
-
-    var spreadsheet_url = 'https://spreadsheets.google.com/tq?key={0}&gid={1}&tqx=out:csv',
+    var spreadsheet_url = 'http://crossorigin.me/https://spreadsheets.google.com/tq?key={0}&gid={1}&tqx=out:csv',
         svg,
         points = [],
         stops = [];

@@ -140,7 +140,8 @@ function timeline_chart() {
         // TOOLBAR BUTTON CONTAINER
 
         timeline_bar = svg.append('g')
-            .attr('class', 'timeline-controls');
+            .attr('class', 'timeline-controls')
+            .attr('width', width);
 
 
         // EFFECTS
@@ -158,7 +159,7 @@ function timeline_chart() {
             });
 
         content_group
-            .call(zoom)
+            // .call(zoom)
             .call(zoom.event)
             .call(tip);
     }
@@ -223,18 +224,20 @@ function timeline_chart() {
         var timeline_buttons = timeline_bar.selectAll('g')
             .data(stops).enter()
         .append('g');
+
         timeline_buttons.attr('class', 'timeline-point')
-            .style('stroke-dasharray', button_width + ' 1000')
-            .attr("transform", function(d, i) { return "translate(0, 0)"; })
-            .transition()
-            .attr("transform", function(d, i) { return "translate(" + i * button_width + ", 0)"; })
-            .transition()
-            .style('fill', 'none');
+            .attr("transform", function(d, i) { return "translate(" + i * button_width + ", 0)"; });
+            
         timeline_buttons.on('click', changeSelection);
 
         timeline_buttons.append('rect')
+            .attr('class', 'accent')
             .attr('width', button_width)
-            .attr('height', toolbar_height)
+            .attr('height', '2');
+
+        timeline_buttons.append('rect')
+            .attr('width', button_width)
+            .attr('height', toolbar_height);
 
         timeline_buttons.append('text')
             .attr('x', button_width / 2)

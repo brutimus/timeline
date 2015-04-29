@@ -128,9 +128,9 @@ text {
 
 	#timeline-background {
 		fill: #fff;
-		stroke-dasharray: 940 10000;
-		stroke-width: 4px;
-		stroke: @bg-color;
+		// stroke-dasharray: 940 10000;
+		// stroke-width: 4px;
+		// stroke: @bg-color;
 	}
 
 	#timeline-marker {
@@ -159,9 +159,15 @@ text {
 		cursor: pointer;
 
 		.timeline-point {
-			fill: #fff;
-			stroke: @bg-color;
-			stroke-width: 4px;
+			fill: none;
+
+			.accent {
+				fill: @bg-color;
+			}
+
+			.button {
+				fill: #fff;
+			}
 
 			text {
 				fill: @bg-color;

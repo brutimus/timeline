@@ -245,7 +245,7 @@ function timeline_chart() {
             .text(function(d){return d['title']});
 
         // Select first stop by default
-        setTimeout(function(){changeSelection(stops[0], 0)}, 100);
+        setTimeout(function(){changeSelection(stops[0], 0)}, 300);
     }
 
     function zoomed() {

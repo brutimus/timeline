@@ -18,7 +18,8 @@ function timeline_chart() {
   var spreadsheet_key = '',
       config_sheet = '',
       points_sheet = '',
-      timeline_sheet = '';
+      timeline_sheet = '',
+      animations = true;
 
   function my(selection) {
     
@@ -68,21 +69,21 @@ function timeline_chart() {
 
         content_group = svg.append('g')
             .attr('class', 'content')
-            .attr('transform', "translate(0," + toolbar_height + ")");
+            .attr('transform', "translate(0," + (toolbar_height * toolbar_rows) + ")");
         content_group.append('rect')
             .attr('id', 'content-background')
             .attr('width', '100%')
-            .attr('height', height - toolbar_height);
+            .attr('height', height - (toolbar_height * toolbar_rows));
 
         content = content_group.append('g');
 
 
         // DETAILS PANEL
         details_panel = selection.select('.details-panel')
-            .style('top', toolbar_height + details_panel_margin + 'px')
+            .style('top', (toolbar_height * toolbar_rows) + details_panel_margin + 'px')
             .style('right', -(width * details_panel_width) + 'px')
             .style('width', (width * details_panel_width - details_panel_margin) + 'px')
-            .style('height', (height - toolbar_height - (details_panel_margin * 2)) + 'px')
+            .style('height', (height - (toolbar_height * toolbar_rows) - (details_panel_margin * 2)) + 'px')
             .style('display', 'block');
 
         details_panel_close = svg.append('g')
@@ -91,10 +92,12 @@ function timeline_chart() {
             .on('click', function(){
                 hide_details_panel();
                 d3.select('.sprite.selected').classed('selected', false);
-                zoomToPoints(selected_points);
+                // zoomToPoints(selected_points);
                 if (timeline_bar.select('g.selected').datum().description) {
-                    timeline_marker.select('#marker-details-button').transition()
-                       .attr('transform', 'translate(0,' + (toolbar_height - 2) + ')');
+                    timeline_marker
+                        .select('#marker-details-button')
+                        // .transition()
+                        .attr('transform', 'translate(0,' + (toolbar_height - 2) + ')');
                 }
             });
         details_panel_close.append('rect')
@@ -112,7 +115,7 @@ function timeline_chart() {
         svg.append('rect')
             .attr('id', 'timeline-background')
             .attr('width', '100%')
-            .attr('height', toolbar_height);
+            .attr('height', (toolbar_height * toolbar_rows));
 
 
         // TOOLBAR SELECTION MARKER
@@ -159,15 +162,16 @@ function timeline_chart() {
             });
 
         content_group
-            // .call(zoom)
+            .call(zoom)
             .call(zoom.event)
             .call(tip);
     }
 
     function load_image(config, points, data){
-        var svgNode = data.getElementsByTagName("svg")[0];
-        content.node().appendChild(svgNode);
-        d3.select(svgNode)
+        var svgNode = data.getElementsByTagName("svg")[0],
+            mapNode = svgNode.getElementById('map');
+        content.node().appendChild(mapNode);
+        d3.select(mapNode)
             .attr('x', config.offset_x)
             .attr('y', config.offset_y);
         zoom.translate([config.offset_x * -1, config.offset_y * -1]).event(content);
@@ -180,11 +184,14 @@ function timeline_chart() {
                 // remains relative to the parent SVG. So we change the x/y to 0
                 // and off_x/off_y will become our offscreen coordinates.
                 var obj = d3.select(svgNode).select('#' + el.svg_id);
-                var bb = obj.node().getBBox();
-                el.svg_bb = bb;
+                // var bb = obj.node().getBBox();
+                // console.log(bb)
+                // el.svg_bb = bb;
+                // These calcs got put into the zoomToPoints because they have to be done
+                // once the svg nodes are added to the DOM
                 obj.remove();
                 el.off_x = 0;
-                el.off_y = -(bb.y + bb.height + 50);
+                // el.off_y = -(bb.y + bb.height + 50);
                 el.x = 0;
                 el.y = 0;
                 el.obj = obj;
@@ -212,10 +219,12 @@ function timeline_chart() {
         stops = ss;
         config = proc_config(cs);
 
-        button_width = parseInt(config.button_width);
         toolbar_height = parseInt(config.toolbar_height);
+        toolbar_rows = 2; // TODO
+        button_width = width / Math.floor(stops.length / toolbar_rows);
+        buttons_per_row = stops.length / toolbar_rows;
         details_panel_margin = parseInt(config.details_panel_margin);
-        details_panel_width = parseFloat(config.details_panel_width);
+        details_panel_width = .9//parseFloat(config.details_panel_width);
 
         draw_ui(config);
 
@@ -224,9 +233,13 @@ function timeline_chart() {
         var timeline_buttons = timeline_bar.selectAll('g')
             .data(stops).enter()
         .append('g');
-
-        timeline_buttons.attr('class', 'timeline-point')
-            .attr("transform", function(d, i) { return "translate(" + i * button_width + ", 0)"; });
+        timeline_buttons
+            .attr('class', 'timeline-point')
+            .attr("transform", function(d, i) {
+                var row = Math.floor(i / buttons_per_row);
+                var row_pos = i % buttons_per_row;
+                return "translate(" + (row_pos * button_width) + ", " + (row * toolbar_height) + ")";
+            });
             
         timeline_buttons.on('click', changeSelection);
 
@@ -258,12 +271,18 @@ function timeline_chart() {
         translate = [(width * .25) - scale * point.svg_bb.x, (height - toolbar_height) / 2 - scale * point.svg_bb.y];
 
         return content
-            .transition()
-            .duration(750)
+            // .transition()
+            // .duration(750)
             .call(zoom.translate(translate).scale(scale).event);
     }
 
     function zoomToPoints(points){
+        $.map(points, function(d){
+            if (! d.svg_bb) {
+                bb = d.svg_bb = d.obj.node().getBBox();
+                d.off_y = -(bb.y + bb.height + 50);
+            }
+        })
         zoom_state = 'group';
         var bbx1 = Math.min.apply(Math, $.map(points, function(d) {return d.svg_bb.x;})),
             bby1 = Math.min.apply(Math, $.map(points, function(d) {return d.svg_bb.y;})),
@@ -277,8 +296,8 @@ function timeline_chart() {
             translate = [width / 2 - scale * x, (height - toolbar_height) / 2 - scale * y];
 
         return content
-            .transition()
-            .duration(750)
+            // .transition()
+            // .duration(750)
             .call(zoom.translate(translate).scale(scale).event);
     }
 
@@ -291,10 +310,13 @@ function timeline_chart() {
         hide_details_panel();
         timeline_marker.select('#marker-details-button')
             .attr('transform', 'translate(0,' + ((toolbar_height - (toolbar_height * .5)) - 2) + ')');
-            t0 = timeline_marker.transition();
-            t0.attr('transform', 'translate(' + button_width * i + ',2)');
+        t0 = timeline_marker;//.transition();
+        var row = Math.floor(i / buttons_per_row);
+        var row_pos = i % buttons_per_row;
+        t0.attr('transform', "translate(" + (row_pos * button_width) + ", " + ((row * toolbar_height) + 2) + ")");
         if (d.description) {
-            t0.transition().select('#marker-details-button')
+            t0//.transition()
+                .select('#marker-details-button')
                 .attr('transform', 'translate(0,' + (toolbar_height - 2) + ')');
         };
         selected_points = $(points).filter(function() {
@@ -305,11 +327,12 @@ function timeline_chart() {
 
         sprites.enter().append(function(d){return d.obj.node()})
         
-        sprites.transition().duration(750)
+        sprites
+            //.transition().duration(750)
             .attr('transform', function(d){return 'translate(' + d.x + ',' + d.y + ')'});
 
         sprites.exit()
-            .transition().duration(750)
+            //.transition().duration(750)
             .attr('transform', function(d){return 'translate(' + d.off_x + ',' + d.off_y + ')'})
             .remove();
 
@@ -318,14 +341,14 @@ function timeline_chart() {
 
         // -----
 
-        var list = d3.select('#map_items').selectAll('li')
-            .data(selected_points, function(p) { return p.id; });
-        list.enter()
-            .append('li')
-            .text(function(d){return d.name})
-            .on('click', pointClickFn)
-        list.exit()
-            .remove();
+        // var list = d3.select('#map_items').selectAll('li')
+        //     .data(selected_points, function(p) { return p.id; });
+        // list.enter()
+        //     .append('li')
+        //     .text(function(d){return d.name})
+        //     .on('click', pointClickFn)
+        // list.exit()
+        //     .remove();
 
         // -----
 
@@ -342,7 +365,7 @@ function timeline_chart() {
             sprite.classed('selected', false);
             hide_details_panel();
             tip.hide();
-            zoomToPoints(selected_points);
+            // zoomToPoints(selected_points);
         } else {
             if (zoom_state == 'point' && d.description) {
                 details_panel.html(d.description);
@@ -354,7 +377,7 @@ function timeline_chart() {
             d3.select('.sprite.selected').classed('selected', false);
             sprite.classed('selected', true);
             tip.hide();
-            zoomToPoint(d);
+            // zoomToPoint(d);
         }
     }
     function toggle_details_panel(html) {
@@ -368,16 +391,16 @@ function timeline_chart() {
         details_panel.html(html);
         timeline_marker.select('#marker-details-button').transition()
             .attr('transform', 'translate(0,' + ((toolbar_height - (toolbar_height * .5)) - 2) + ')');
-        details_panel.transition()
+        details_panel//.transition()
             .style('right', details_panel_margin + 'px');
-        details_panel_close.transition().delay(50).duration(300)
+        details_panel_close//.transition().delay(50).duration(300)
             .attr('transform',
                 'translate(' + ((width * (1 - details_panel_width)) - toolbar_height) + ',' + ((height / 2) - ((toolbar_height * 3) / 2)) + ')')
     }
     function hide_details_panel(){
-        details_panel.transition()
+        details_panel//.transition()
             .style('right', -(width * details_panel_width) + 'px');
-        details_panel_close.transition()
+        details_panel_close//.transition()
             .attr('transform', 'translate(' + width + ',' + ((height / 2) - (button_width / 2)) + ')')
     }
 
@@ -389,7 +412,9 @@ function timeline_chart() {
         width = svg.node().getBoundingClientRect().width,
         height = svg.node().getBoundingClientRect().height,
         toolbar_height,
+        toolbar_rows,
         button_width,
+        buttons_per_row,
         details_panel_margin,
         details_panel_width,
         selected_points,
@@ -438,6 +463,11 @@ function timeline_chart() {
   my.timeline_sheet = function(value) {
     if (!arguments.length) return timeline_sheet;
     timeline_sheet = value;
+    return my;
+  }
+  my.animations = function(value) {
+    if (!arguments.length) return animations;
+    animations = value;
     return my;
   }
 

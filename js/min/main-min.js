@@ -19100,7 +19100,7 @@ return jQuery;
 if (!String.prototype.format) {
   String.prototype.format = function() {
     var args = arguments;
-    return this.replace(/{(\d+)}/g, function(match, number) { 
+    return this.replace(/{(\d+)}/g, function(match, number) {
       return typeof args[number] != 'undefined'
         ? args[number]
         : match
@@ -19117,7 +19117,7 @@ function timeline_chart() {
       animations = true;
 
   function my(selection) {
-    
+
     /* ========== VARIABLES & FUNCTIONS ========== */
     var spreadsheet_url = 'http://crossorigin.me/https://spreadsheets.google.com/tq?key={0}&gid={1}&tqx=out:csv',
         svg,
@@ -19176,14 +19176,17 @@ function timeline_chart() {
         // DETAILS PANEL
         details_panel = selection.select('.details-panel')
             .style('top', (toolbar_height * toolbar_rows) + details_panel_margin + 'px')
-            .style('right', -(width * details_panel_width) + 'px')
+            .style('-webkit-transform', 'translateX(' + ((width * details_panel_width) + details_panel_margin * 2) + 'px)')
             .style('width', (width * details_panel_width - details_panel_margin) + 'px')
             .style('height', (height - (toolbar_height * toolbar_rows) - (details_panel_margin * 2)) + 'px')
-            .style('display', 'block');
+            setTimeout(function(){
+                details_panel
+                    .style('display', 'block');
+            }, 1000);
 
         details_panel_close = svg.append('g')
             .attr('class', 'details-panel-close')
-            .attr('transform', 'translate(' + width + ',' + ((height / 2) - (button_width / 2)) + ')')
+            .style('-webkit-transform', 'translate(' + width + 'px,' + ((height / 2) - (button_width / 2)) + 'px)')
             .on('click', function(){
                 hide_details_panel();
                 d3.select('.sprite.selected').classed('selected', false);
@@ -19206,7 +19209,7 @@ function timeline_chart() {
 
 
         // TOOLBAR BACKGROUND
-        
+
         svg.append('rect')
             .attr('id', 'timeline-background')
             .attr('width', '100%')
@@ -19304,9 +19307,13 @@ function timeline_chart() {
                     .attr('xlink:href', el.sprite)
                     .attr('width', el.width)
                     .attr('height', el.height)
-                    .attr('class', 'marker');  
+                    .attr('class', 'marker');
             };
         });
+
+        // Select first stop by default
+        setTimeout(function(){changeSelection(stops[0], 0)}, 0);
+
     }
 
     function data_ready(error, cs, ps, ss) {
@@ -19335,7 +19342,7 @@ function timeline_chart() {
                 var row_pos = i % buttons_per_row;
                 return "translate(" + (row_pos * button_width) + ", " + (row * toolbar_height) + ")";
             });
-            
+
         timeline_buttons.on('click', changeSelection);
 
         timeline_buttons.append('rect')
@@ -19352,8 +19359,7 @@ function timeline_chart() {
             .attr('y', toolbar_height / 2)
             .text(function(d){return d['title']});
 
-        // Select first stop by default
-        setTimeout(function(){changeSelection(stops[0], 0)}, 300);
+
     }
 
     function zoomed() {
@@ -19399,7 +19405,7 @@ function timeline_chart() {
     function changeSelection(d, i){
         // If the click is on the already selected element, don't do anything
         if (timeline_bar.select('g.selected').node() == timeline_bar.selectAll('g')[0][i]) return;
-        
+
         timeline_bar.select('g.selected').classed('selected', false);
         d3.select(timeline_bar.selectAll('g')[0][i]).classed('selected', true);
         hide_details_panel();
@@ -19421,7 +19427,7 @@ function timeline_chart() {
             .data(selected_points, function(p) { return p.id; });
 
         sprites.enter().append(function(d){return d.obj.node()})
-        
+
         sprites
             //.transition().duration(750)
             .attr('transform', function(d){return 'translate(' + d.x + ',' + d.y + ')'});
@@ -19447,9 +19453,7 @@ function timeline_chart() {
 
         // -----
 
-        sprites.on('mouseenter', tip.show)
-            .on('mouseleave', tip.hide)
-            .on('click', pointClickFn);
+        sprites.on('click', pointClickFn);
     }
     function pointClickFn(d){
         var sprite = d3.selectAll('.sprite').filter(function(data, i) {
@@ -19486,17 +19490,19 @@ function timeline_chart() {
         details_panel.html(html);
         timeline_marker.select('#marker-details-button').transition()
             .attr('transform', 'translate(0,' + ((toolbar_height - (toolbar_height * .5)) - 2) + ')');
-        details_panel//.transition()
-            .style('right', details_panel_margin + 'px');
+        details_panel
+            .style('-webkit-transform', 'translateX(' + (width * (1 - details_panel_width)) + 'px)');
         details_panel_close//.transition().delay(50).duration(300)
-            .attr('transform',
-                'translate(' + ((width * (1 - details_panel_width)) - toolbar_height) + ',' + ((height / 2) - ((toolbar_height * 3) / 2)) + ')')
+            .style('-webkit-transform',
+                'translate(' + ((width * (1 - details_panel_width)) - toolbar_height) + 'px,' + ((height / 2) - ((toolbar_height * 3) / 2)) + 'px)')
     }
     function hide_details_panel(){
-        details_panel//.transition()
-            .style('right', -(width * details_panel_width) + 'px');
+        setTimeout(function(){
+            details_panel
+                .style('-webkit-transform', 'translateX(' + ((width * details_panel_width) + details_panel_margin * 2) + 'px)');
+            }, 100);
         details_panel_close//.transition()
-            .attr('transform', 'translate(' + width + ',' + ((height / 2) - (button_width / 2)) + ')')
+            .style('-webkit-transform', 'translate(' + width + 'px,' + ((height / 2) - (button_width / 2)) + 'px)')
     }
 
 
@@ -19568,6 +19574,7 @@ function timeline_chart() {
 
   return my;
 }
+
 
 //@codekit-prepend "../bower_components/jquery/dist/jquery.js"
 //@codekit-prepend "timeline-chart.js"

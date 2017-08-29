@@ -23,7 +23,7 @@ function timeline_chart() {
   function my(selection) {
     
     /* ========== VARIABLES & FUNCTIONS ========== */
-    var spreadsheet_url = 'http://crossorigin.me/https://spreadsheets.google.com/tq?key={0}&gid={1}&tqx=out:csv',
+    var spreadsheet_url = 'https://cors-anywhere.herokuapp.com/spreadsheets.google.com/tq?key={0}&gid={1}&tqx=out:csv',
         svg,
         points = [],
         stops = [];
@@ -87,7 +87,7 @@ function timeline_chart() {
 
         details_panel_close = svg.append('g')
             .attr('class', 'details-panel-close')
-            .attr('transform', 'translate(' + width + ',' + ((height / 2) - (button_width / 2)) + ')')
+            .attr('transform', 'translate(' + width + ',' + ((height / 2) - (100 / 2)) + ')')
             .on('click', function(){
                 hide_details_panel();
                 d3.select('.sprite.selected').classed('selected', false);
@@ -167,10 +167,10 @@ function timeline_chart() {
     function load_image(config, points, data){
         var svgNode = data.getElementsByTagName("svg")[0];
         content.node().appendChild(svgNode);
-        d3.select(svgNode)
-            .attr('x', config.offset_x)
-            .attr('y', config.offset_y);
-        zoom.translate([config.offset_x * -1, config.offset_y * -1]).event(content);
+        // d3.select(svgNode)
+        //     .attr('x', config.offset_x)
+        //     .attr('y', config.offset_y);
+        // zoom.translate([config.offset_x * -1, config.offset_y * -1]).event(content);
 
         // Process all the points here. If we have svg_id values, pull sprites
         // from the primary image. Otherwise load the sprites from URLs.
@@ -193,16 +193,16 @@ function timeline_chart() {
             } else {
                 // With newly created objects, the coordinate system is 0,0 relative to
                 // the containing element. Thus our x/y positions will come from the sheet.
-                el.off_x = el.x;
-                el.off_y = -(el.height + 50)
-                el.obj = content_group.append('g').remove()
-                    .attr('class', 'sprite')
-                    .attr('transform', 'translate(' + el.x + ',' + el.off_y + ')');
-                el.obj.append('svg:image')
-                    .attr('xlink:href', el.sprite)
-                    .attr('width', el.width)
-                    .attr('height', el.height)
-                    .attr('class', 'marker');  
+                // el.off_x = el.x;
+                // el.off_y = -(el.height + 50)
+                // el.obj = content_group.append('g').remove()
+                //     .attr('class', 'sprite')
+                //     .attr('transform', 'translate(' + el.x + ',' + el.off_y + ')');
+                // el.obj.append('svg:image')
+                //     .attr('xlink:href', el.sprite)
+                //     .attr('width', el.width)
+                //     .attr('height', el.height)
+                //     .attr('class', 'marker');  
             };
         });
     }
@@ -212,7 +212,7 @@ function timeline_chart() {
         stops = ss;
         config = proc_config(cs);
 
-        button_width = parseInt(config.button_width);
+        button_width = (parseInt(config.button_width) / 100) * width;
         toolbar_height = parseInt(config.toolbar_height);
         details_panel_margin = parseInt(config.details_panel_margin);
         details_panel_width = parseFloat(config.details_panel_width);
@@ -300,12 +300,15 @@ function timeline_chart() {
         selected_points = $(points).filter(function() {
                 return $.inArray(this.id, d.points) > -1
             });
-        var sprites = content.selectAll('.sprite')
+        var sprites = content.select('svg').selectAll('.sprite')
             .data(selected_points, function(p) { return p.id; });
 
         sprites.enter().append(function(d){return d.obj.node()})
         
-        sprites.transition().duration(750)
+        sprites
+            .transition()
+            .duration(750)
+            .delay(function(d, i) { return i * 15 * Math.random(); })
             .attr('transform', function(d){return 'translate(' + d.x + ',' + d.y + ')'});
 
         sprites.exit()
@@ -322,7 +325,7 @@ function timeline_chart() {
             .data(selected_points, function(p) { return p.id; });
         list.enter()
             .append('li')
-            .text(function(d){return d.name})
+            .html(function(d){return d.name})
             .on('click', pointClickFn)
         list.exit()
             .remove();

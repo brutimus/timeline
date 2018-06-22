@@ -24,7 +24,7 @@ function timeline_chart() {
   function my(selection) {
 
     /* ========== VARIABLES & FUNCTIONS ========== */
-    var spreadsheet_url = 'http://crossorigin.me/https://spreadsheets.google.com/tq?key={0}&gid={1}&tqx=out:csv',
+    var spreadsheet_url = 'https://spreadsheets.google.com/tq?key={0}&gid={1}&tqx=out:csv',
         svg,
         points = [],
         stops = [];
@@ -433,9 +433,27 @@ function timeline_chart() {
     /* ============================= */
 
     queue()
-        .defer(d3.csv, spreadsheet_url.format(spreadsheet_key, config_sheet))
-        .defer(d3.csv, spreadsheet_url.format(spreadsheet_key, points_sheet), proc_points)
-        .defer(d3.csv, spreadsheet_url.format(spreadsheet_key, timeline_sheet), proc_stops)
+        .defer(
+            d3.csv,
+            'http://localhost:8000/alias/' + encodeURIComponent(btoa(spreadsheet_url.format(
+                spreadsheet_key,
+                config_sheet
+            ))) + '/'
+        )
+        .defer(
+            d3.csv,
+            'http://localhost:8000/alias/' + encodeURIComponent(btoa(spreadsheet_url.format(
+                spreadsheet_key,
+                points_sheet
+            ))) + '/',
+            proc_points)
+        .defer(
+            d3.csv,
+            'http://localhost:8000/alias/' + encodeURIComponent(btoa(spreadsheet_url.format(
+                spreadsheet_key,
+                timeline_sheet
+            ))) + '/',
+            proc_stops)
         .await(data_ready);
 
 

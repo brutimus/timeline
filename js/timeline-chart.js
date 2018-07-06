@@ -79,6 +79,7 @@ function timeline_chart() {
 
 
         // DETAILS PANEL
+        console.log(width, details_panel_width, details_panel_margin)
         details_panel = selection.select('.details-panel')
             .style('top', (toolbar_height * toolbar_rows) + details_panel_margin + 'px')
             .style('-webkit-transform', 'translateX(' + ((width * details_panel_width) + details_panel_margin * 2) + 'px)')
@@ -95,11 +96,11 @@ function timeline_chart() {
             .on('click', function(){
                 hide_details_panel();
                 d3.select('.sprite.selected').classed('selected', false);
-                // zoomToPoints(selected_points);
+                zoomToPoints(selected_points);
                 if (timeline_bar.select('g.selected').datum().description) {
                     timeline_marker
                         .select('#marker-details-button')
-                        // .transition()
+                        .transition()
                         .attr('transform', 'translate(0,' + (toolbar_height - 2) + ')');
                 }
             });
@@ -227,11 +228,11 @@ function timeline_chart() {
         config = proc_config(cs);
 
         toolbar_height = parseInt(config.toolbar_height);
-        toolbar_rows = 2; // TODO
+        toolbar_rows = 1; // TODO
         button_width = width / Math.floor(stops.length / toolbar_rows);
         buttons_per_row = stops.length / toolbar_rows;
         details_panel_margin = parseInt(config.details_panel_margin);
-        details_panel_width = .9//parseFloat(config.details_panel_width);
+        details_panel_width = parseFloat(config.details_panel_width);
 
         draw_ui(config);
 
@@ -277,8 +278,8 @@ function timeline_chart() {
         translate = [(width * .25) - scale * point.svg_bb.x, (height - toolbar_height) / 2 - scale * point.svg_bb.y];
 
         return content
-            // .transition()
-            // .duration(750)
+            .transition()
+            .duration(750)
             .call(zoom.translate(translate).scale(scale).event);
     }
 
@@ -302,8 +303,8 @@ function timeline_chart() {
             translate = [width / 2 - scale * x, (height - toolbar_height) / 2 - scale * y];
 
         return content
-            // .transition()
-            // .duration(750)
+            .transition()
+            .duration(750)
             .call(zoom.translate(translate).scale(scale).event);
     }
 
@@ -334,11 +335,11 @@ function timeline_chart() {
         sprites.enter().append(function(d){return d.obj.node()})
 
         sprites
-            //.transition().duration(750)
+            .transition().duration(750)
             .attr('transform', function(d){return 'translate(' + d.x + ',' + d.y + ')'});
 
         sprites.exit()
-            //.transition().duration(750)
+            .transition().duration(750)
             .attr('transform', function(d){return 'translate(' + d.off_x + ',' + d.off_y + ')'})
             .remove();
 
@@ -347,14 +348,14 @@ function timeline_chart() {
 
         // -----
 
-        // var list = d3.select('#map_items').selectAll('li')
-        //     .data(selected_points, function(p) { return p.id; });
-        // list.enter()
-        //     .append('li')
-        //     .text(function(d){return d.name})
-        //     .on('click', pointClickFn)
-        // list.exit()
-        //     .remove();
+        var list = d3.select('#map_items').selectAll('li')
+            .data(selected_points, function(p) { return p.id; });
+        list.enter()
+            .append('li')
+            .text(function(d){return d.name})
+            .on('click', pointClickFn)
+        list.exit()
+            .remove();
 
         // -----
 
@@ -369,7 +370,7 @@ function timeline_chart() {
             sprite.classed('selected', false);
             hide_details_panel();
             tip.hide();
-            // zoomToPoints(selected_points);
+            zoomToPoints(selected_points);
         } else {
             if (zoom_state == 'point' && d.description) {
                 details_panel.html(d.description);
@@ -381,7 +382,7 @@ function timeline_chart() {
             d3.select('.sprite.selected').classed('selected', false);
             sprite.classed('selected', true);
             tip.hide();
-            // zoomToPoint(d);
+            zoomToPoint(d);
         }
     }
     function toggle_details_panel(html) {
@@ -404,10 +405,10 @@ function timeline_chart() {
     function hide_details_panel(){
         setTimeout(function(){
             details_panel
-                .style('-webkit-transform', 'translateX(' + ((width * details_panel_width) + details_panel_margin * 2) + 'px)');
+                .style('-webkit-transform', 'translateX(' + (((width * details_panel_width) * 2) + details_panel_margin * 2) + 'px)');
             }, 100);
         details_panel_close//.transition()
-            .style('-webkit-transform', 'translate(' + width + 'px,' + ((height / 2) - (button_width / 2)) + 'px)')
+            .style('-webkit-transform', 'translate(' + width + 'px,' +  ((height / 2) - ((toolbar_height * 3) / 2)) + 'px)')
     }
 
 
@@ -435,21 +436,21 @@ function timeline_chart() {
     queue()
         .defer(
             d3.csv,
-            'http://localhost:8000/alias/' + encodeURIComponent(btoa(spreadsheet_url.format(
+            'http://www.spokesman.com/alias/' + encodeURIComponent(btoa(spreadsheet_url.format(
                 spreadsheet_key,
                 config_sheet
             ))) + '/'
         )
         .defer(
             d3.csv,
-            'http://localhost:8000/alias/' + encodeURIComponent(btoa(spreadsheet_url.format(
+            'http://www.spokesman.com/alias/' + encodeURIComponent(btoa(spreadsheet_url.format(
                 spreadsheet_key,
                 points_sheet
             ))) + '/',
             proc_points)
         .defer(
             d3.csv,
-            'http://localhost:8000/alias/' + encodeURIComponent(btoa(spreadsheet_url.format(
+            'http://www.spokesman.com/alias/' + encodeURIComponent(btoa(spreadsheet_url.format(
                 spreadsheet_key,
                 timeline_sheet
             ))) + '/',

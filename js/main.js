@@ -3,7 +3,7 @@
 
 $(document).ready(function() {
 	var chart = timeline_chart()
-		.spreadsheet_key('1usz0um8pRGh43wUXWqITCOSMz50kpqfW3L9JKUxLq7E')
+		.spreadsheet_key('1myJ_J03KTWvdeUEdADUdXg2aPSNXtqQuEnIz43B4sas')
 	    .config_sheet('48832348')
 	    .points_sheet('0')
 	    .timeline_sheet('37073144');
